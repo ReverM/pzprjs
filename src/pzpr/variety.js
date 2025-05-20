@@ -305,6 +305,7 @@
 				"",
 				{ kanpen: "numberlink" }
 			],
+			"numlin-aux": [0, 0, "ソルバー", "Solver"],
 			numrope: [0, 0, "ナンバーロープ", "Number Rope", "kakuru"],
 			nuribou: [1, 0, "ぬりぼう", "Nuribou", "nurikabe"],
 			nurikabe: [0, 1, "ぬりかべ", "Nurikabe", "nurikabe"],

@@ -96,6 +96,146 @@ pzpr.classmgr.makeCommon({
 			return 1;
 		},
 
+		autoSolve: function(b) {
+            this.answers = null;
+			var c = "nurimisaki" === this.pid || "nurikabe" === this.pid || "lits" === this.pid || "heyawake" === this.pid || "yajilin" === this.pid || "lightup" === this.pid || "shakashaka" === this.pid || "aqre" === this.pid || "tapa" === this.pid || "yajilin-regions" === this.pid || "shimaguni" === this.pid || "norinori" === this.pid || "sudoku" === this.pid,
+				d = "slither" === this.pid || "mashu" === this.pid || "yajilin" === this.pid || "simpleloop" === this.pid || "yajilin-regions" === this.pid || "castle" === this.pid || "numlin-aux" === this.pid;
+			if (!this.is_autosolve && !b) {
+				var e = !1;
+				return c && this.clearSolverAnswerForCells() && (e = !0), d && this.clearSolverAnswerForBorders() && (e = !0), void(e && this.puzzle.painter.paintAll())
+			}
+			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
+			if ("simpleloop" !== this.pid || "/" !== url.substring(url.length - 1)) {
+				var g, h = null;
+				if ("numlin-aux" === this.pid) {
+					var e = !1;
+					c && this.clearSolverAnswerForCells() && (e = !0), d && this.clearSolverAnswerForBorders() && (e = !0), e && this.puzzle.painter.paintAll(), h = parseInt(document.num_max_answer.nummax.value);
+					for (var i = this.maxbx / 2, j = this.maxby / 2, k = [], l = 0; l < j; ++l) {
+						for (var m = [], n = 0; n < i; ++n){
+							m.push(0);}
+						k.push(m);
+					}
+					for (var o = 0; o < this.cell.length; ++o) {
+						var p = this.cell[o];
+						p.qnum >= 1 && (k[Math.floor(p.id / i)][p.id % i] = p.qnum)
+					}
+					ui.popupmgr.popups.auxeditor.pop.querySelector(".solver-answer-locator").innerText = "Now solving...", this.solverRunning = !0;
+					var q = this;
+					return void window.solveNumberlinkAsync(k, h).then(function(a) {
+						q.answers = a, q.answerIndex = 0, q.solverRunning = !1, q.showAnswer()
+					}).catch(function(a) {
+						q.answers = "terminated", q.answerIndex = 0, q.solverRunning = !1, q.showAnswer()
+					})
+				}
+				g = window.solveProblem(url, h), c && this.updateSolverAnswerForCells(g), d && this.updateSolverAnswerForBorders(g), this.puzzle.painter.paintAll()
+			}
+		},
+
+		clearSolverAnswerForCells: function() {
+                    for (var a = !1, b = 0; b < this.cell.length; ++b) {
+                        var c = this.cell[b];
+                        0 === c.qansBySolver && 0 === c.qsubBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0)
+                    }
+                    return a
+                },
+
+		updateSolverAnswerForCells: function(a) {
+			if (this.clearSolverAnswerForCells(), "string" !== typeof a) {
+				for (var b = [], c = 0; c < this.rows; ++c) {
+					for (var d = [], e = 0; e < this.cols; ++e){
+						d.push([]);}
+					b.push(d);
+				}
+				for (var f = a.data, g = 0; g < f.length; ++g) {
+					var h = f[g];
+					"green" === h.color && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
+				}
+				for (var g = 0; g < this.cell.length; ++g){
+					for (var i = this.cell[g], j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k){
+						if ("block" === j[k] || "fill" === j[k] || "circle" === j[k]){
+							i.qansBySolver = 1;}
+						else if ("dot" === j[k]){
+							i.qsubBySolver = 1;}
+						else if ("aboloUpperLeft" === j[k]){
+							i.qansBySolver = 5;}
+						else if ("aboloUpperRight" === j[k]){
+							i.qansBySolver = 4;}
+						else if ("aboloLowerLeft" === j[k]){
+							i.qansBySolver = 2;}
+						else if ("aboloLowerRight" === j[k]){
+							i.qansBySolver = 3;}
+						else if (j[k].kind){
+							if ("text" === j[k].kind){
+								i.qansBySolver = parseInt(j[k].data);}
+							else if ("sudokuCandidateSet" === j[k].kind) {
+								i.qcandBySolver = [];
+								for (var l = 0; l < this.rows; ++l){
+									i.qcandBySolver.push(!1);}
+								for (var l = 0; l < j[k].values.length; ++l) {
+									var e = j[k].values[l];
+									1 <= e && e <= this.rows && (i.qcandBySolver[e - 1] = !0)
+								}}
+						}
+						 else{
+							for (var m = "shakashaka" === this.pid ? 2 : 1, g = 0; g < this.cell.length; ++g) {
+								var i = this.cell[g],
+									c = (i.by - 1) / 2,
+									e = (i.bx - 1) / 2;
+								c % 2 === e % 2 && (i.qansBySolver = m)
+							}}
+					}}}},
+
+		clearSolverAnswerForBorders: function() {
+			for (var a = !1, b = 0; b < this.border.length; ++b) {
+				var c = this.border[b];
+				0 === c.lineBySolver && 0 === c.qsubBySolver || (c.lineBySolver = 0, c.qsubBySolver = 0, a = !0)
+			}
+			return a
+		},
+
+		updateSolverAnswerForBorders: function(a) {
+			if (this.clearSolverAnswerForBorders(), "string" !== typeof a) {
+				for (var b = [], c = 0; c < 2 * this.rows + 1; ++c) {
+					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) 
+						{d.push([]);}
+					b.push(d)
+				}
+				for (var f = a.data, g = 0; g < f.length; ++g) {
+					var h = f[g];
+					"green" === h.color && (h.x % 2 !== h.y % 2 && b[h.y][h.x].push(h.item))
+				}
+				for (var g = 0; g < this.border.length; ++g) {
+					for (var i = this.border[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k){
+						 "line" === j[k] || "wall" === j[k] ? i.lineBySolver = 1 : "cross" === j[k] && (i.qsubBySolver = 2)}}
+			} else {
+				for (var g = 0; g < this.border.length; ++g) {
+					var i = this.border[g];
+					i.qsubBySolver = 2
+				}
+			}
+		},
+		showAnswer: function() {
+			if (this.answers) {
+				var a, b, c = this.answerIndex;
+				"string" === typeof this.answers ? (a = this.answers, b = 0) : (a = this.answers.answers[c], b = this.answers.answers.length);
+				var d = ui.popupmgr.popups.auxeditor.pop.querySelector(".solver-answer-locator");
+				"terminated" === this.answers ? d.innerText = "Terminated" : d.innerText = c + 1 + "/" + b;
+				"numlin-aux" === this.pid && this.updateSolverAnswerForBorders(a), this.puzzle.painter.paintAll()
+			}
+		},
+
+		locateAnswer: function(a) {
+			if (null !== this.answers) {
+				var b;
+				b = "string" === typeof this.answers ? 0 : this.answers.answers.length, -2 === a ? this.answerIndex = 0 : -1 === a ? (this.answerIndex -= 1, this.answerIndex < 0 && (this.answerIndex = 0)) : 1 === a ? (this.answerIndex += 1, this.answerIndex >= b && (this.answerIndex = b - 1)) : this.answerIndex = b - 1, this.showAnswer()
+			}
+		},
+		is_autosolve: !1,
+
+		updateIsAutosolve: function(a) {
+			this.is_autosolve !== a && (this.is_autosolve = a, this.autoSolve())
+		},
+
 		//---------------------------------------------------------------------------
 		// bd.initBoardSize() 指定されたサイズで盤面の初期化を行う
 		//---------------------------------------------------------------------------
@@ -171,6 +311,12 @@ pzpr.classmgr.makeCommon({
 				groups2.allclear(false);
 			}
 			groups.length = len;
+			for (var id = 0; id < len; id++) {
+				groups[id].qansBySolver = 0;
+				groups[id].qsubBySolver = 0;
+				groups[id].lineBySolver = 0;
+				groups[id].qcandBySolver = null;
+			}
 			return len - clen;
 		},
 		getGroup: function(group) {
