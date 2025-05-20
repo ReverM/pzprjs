@@ -30,6 +30,9 @@ pzpr.classmgr.makeCommon({
 		/* 回答データを保持するプロパティ */
 		qans: 0, // cell  :(1:黒マス/あかり 2-5:三角形 11-13:棒 31-32:斜線 41-50:ふとん)
 		// border:(回答の境界線)
+		qansBySolver: 0,
+		qsubBySolver: 0,
+		lineBySolver: 0,
 		anum: -1, // cell  :(セルの数字/○△□/単体矢印)
 		line: 0, // border:(ましゅやスリリンなどの線)
 
@@ -184,6 +187,10 @@ pzpr.classmgr.makeCommon({
 			var trialstage = this.board.trialstage;
 			if (trialstage > 0) {
 				this.trial = trialstage;
+			}
+			
+			if (this.puzzle.editmode) {
+				this.board.autoSolve();
 			}
 
 			this.board.modifyInfo(this, this.group + "." + prop);
@@ -591,6 +598,10 @@ pzpr.classmgr.makeCommon({
 			return this.qsub === 1;
 		},
 
+		isDotBySolver: function() {
+			return this.qsubBySolver === 1;
+		},
+
 		//---------------------------------------------------------------------------
 		// cell.isEmpty() / cell.isValid() 不定形盤面などで、入力できるマスか判定する
 		//---------------------------------------------------------------------------
@@ -915,6 +926,9 @@ pzpr.classmgr.makeCommon({
 		//-----------------------------------------------------------------------
 		isLine: function() {
 			return this.line > 0;
+		},
+		isLineBySolver: function() {
+			return this.lineBySolver > 0;
 		},
 		setLine: function(id) {
 			this.setLineVal(1);

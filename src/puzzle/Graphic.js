@@ -63,6 +63,9 @@
 			subcolor: "rgb(127, 127, 255)",
 			subshadecolor: "rgb(220, 220, 255)",
 
+			solvercolor: "rgb(192, 192, 255)",
+            solverqanscolor: "rgb(0, 160, 192)",
+
 			// 黒マスの色
 			shadecolor: "black",
 			errcolor1: "rgb(192, 0, 0)",

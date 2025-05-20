@@ -64,6 +64,22 @@ ui.popupmgr.addpopup("auxeditor", {
 
 	adjust_aux: function(e) {
 		ui.auxeditor.puzzle.board.operate(e.target.name);
+	},
+
+	solver_answer_first: function() {
+		ui.auxeditor.puzzle.board.locateAnswer(-2)
+	},
+	solver_answer_prev: function() {
+		ui.auxeditor.puzzle.board.locateAnswer(-1)
+	},
+	solver_answer_next: function() {
+		ui.auxeditor.puzzle.board.locateAnswer(1)
+	},
+	solver_answer_last: function() {
+		ui.auxeditor.puzzle.board.locateAnswer(2)
+	},
+	solver_stop: function() {
+		ui.auxeditor.puzzle.board.solverRunning && window.solveNumberlinkAsyncTerminate()
 	}
 });
 
