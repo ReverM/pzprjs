@@ -549,8 +549,8 @@
 					break;
 				case "autosolver":
                     case "run_autosolver":
-                        exec = 
-						[
+						exec = true;
+						/*[
 							"nurimisaki",
 							"nurikabe",
 							"lits",
@@ -558,6 +558,7 @@
 							"slither",
 							"mashu",
 							"yajilin",
+							"cave",
 							"lightup",
 							"shakashaka",
 							"aqre",
@@ -567,8 +568,17 @@
 							"castle",
 							"shimaguni",
 							"norinori",
-							"sudoku"
-						].indexOf(pid) >= 0;
+							"sudoku",
+							"cbanana",
+							"curvedata",
+							"creek",
+							"stostone",
+							"kakuro",
+							"kurotto",
+							"clamp",
+							"chainedb",
+							"nothree"
+						].indexOf(pid) >= 0;*/
                         break;
                     case "open_solver":
                         exec = pid === "numlin";
@@ -629,6 +639,7 @@
 					break;
 				case "run_autosolver":
 					puzzle.board.autoSolve(true);
+					break;
 			}
 		}
 	};

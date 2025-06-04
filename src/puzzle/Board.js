@@ -4,8 +4,10 @@
 // ★Boardクラス 盤面の情報を保持する。Cell, Cross, Borderのオブジェクトも保持する
 //---------------------------------------------------------------------------
 // Boardクラスの定義
+
 pzpr.classmgr.makeCommon({
 	//---------------------------------------------------------
+	
 	Board: {
 		initialize: function() {
 			var classes = this.klass;
@@ -97,48 +99,79 @@ pzpr.classmgr.makeCommon({
 			return 1;
 		},
 
-		autoSolve: function(b) {
-            this.answers = null;
-			var c = "nurimisaki" === this.pid || "nurikabe" === this.pid || "lits" === this.pid || "heyawake" === this.pid || "yajilin" === this.pid || "lightup" === this.pid || "shakashaka" === this.pid || "aqre" === this.pid || "tapa" === this.pid || "yajilin-regions" === this.pid || "shimaguni" === this.pid || "norinori" === this.pid || "sudoku" === this.pid,
-				d = "slither" === this.pid || "mashu" === this.pid || "yajilin" === this.pid || "simpleloop" === this.pid || "yajilin-regions" === this.pid || "castle" === this.pid || "numlin-aux" === this.pid;
-			if (!this.is_autosolve && !b) {
-				var e = !1;
-				return c && this.clearSolverAnswerForCells() && (e = !0), d && this.clearSolverAnswerForBorders() && (e = !0), void(e && this.puzzle.painter.paintAll())
+
+		autoSolve: function(force) {
+			this.answers = null;
+			var updateCells =
+				/*[
+					"nurimisaki",
+					"nurikabe",
+					"lits",
+					"heyawake",
+					"cave",
+					"lightup",
+					"shakashaka",
+					"aqre",
+					"tapa",
+					"shimaguni",
+					"norinori",
+					"kakuro",
+					"sudoku",
+					"cbanana",
+					"clamp",
+					"stostone",
+					"kakuro",
+					"chainedb",
+					"kurotto",
+					"nothree",
+					"creek"
+				].indexOf(this.pid) >= 0;*/ true;
+			var updateBorders = /*
+				[
+					"slither",
+					"mashu",
+					"yajilin",
+					"simpleloop",
+					"yajilin-regions",
+					"castle",
+					"curvedata"
+				].indexOf(this.pid) >= 0;*/ true;
+			if (!this.is_autosolve && !force) {
+				// clear solver answers if necessary
+				var needUpdateField = false;
+				if (updateCells && this.clearSolverAnswerForCells()) {
+					needUpdateField = true;
+				}
+				if (updateBorders && this.clearSolverAnswerForBorders()) {
+					needUpdateField = true;
+				}
+				if (needUpdateField) {
+					this.puzzle.painter.paintAll();
+				}
+				return;
 			}
 			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
-			if ("simpleloop" !== this.pid || "/" !== url.substring(url.length - 1)) {
-				var g, h = null;
-				if ("numlin-aux" === this.pid) {
-					var e = !1;
-					c && this.clearSolverAnswerForCells() && (e = !0), d && this.clearSolverAnswerForBorders() && (e = !0), e && this.puzzle.painter.paintAll(), h = parseInt(document.num_max_answer.nummax.value);
-					for (var i = this.maxbx / 2, j = this.maxby / 2, k = [], l = 0; l < j; ++l) {
-						for (var m = [], n = 0; n < i; ++n){
-							m.push(0);}
-						k.push(m);
-					}
-					for (var o = 0; o < this.cell.length; ++o) {
-						var p = this.cell[o];
-						p.qnum >= 1 && (k[Math.floor(p.id / i)][p.id % i] = p.qnum)
-					}
-					ui.popupmgr.popups.auxeditor.pop.querySelector(".solver-answer-locator").innerText = "Now solving...", this.solverRunning = !0;
-					var q = this;
-					return void window.solveNumberlinkAsync(k, h).then(function(a) {
-						q.answers = a, q.answerIndex = 0, q.solverRunning = !1, q.showAnswer()
-					}).catch(function(a) {
-						q.answers = "terminated", q.answerIndex = 0, q.solverRunning = !1, q.showAnswer()
-					})
-				}
-				g = window.solveProblem(url, h), c && this.updateSolverAnswerForCells(g), d && this.updateSolverAnswerForBorders(g), this.puzzle.painter.paintAll()
+			var result = window.solveProblem(url);
+
+			if (updateCells) {
+				this.updateSolverAnswerForCells(result);
 			}
+			if (updateBorders) {
+				this.updateSolverAnswerForBorders(result);
+			}
+
+			this.puzzle.painter.paintAll();
 		},
 
+
 		clearSolverAnswerForCells: function() {
-                    for (var a = !1, b = 0; b < this.cell.length; ++b) {
-                        var c = this.cell[b];
-                        0 === c.qansBySolver && 0 === c.qsubBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0)
-                    }
-                    return a
-                },
+			for (var a = !1, b = 0; b < this.cell.length; ++b) {
+				var c = this.cell[b];
+				0 === c.qansBySolver && 0 === c.qsubBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0)
+			}
+			return a
+		},
+
 
 		updateSolverAnswerForCells: function(a) {
 			if (this.clearSolverAnswerForCells(), "string" !== typeof a) {
@@ -149,13 +182,17 @@ pzpr.classmgr.makeCommon({
 				}
 				for (var f = a.data, g = 0; g < f.length; ++g) {
 					var h = f[g];
-					"green" === h.color && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
+					("statuepark" === this.pid || "green" === h.color) && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
 				}
 				for (var g = 0; g < this.cell.length; ++g){
 					for (var i = this.cell[g], j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k){
-						if ("block" === j[k] || "fill" === j[k] || "circle" === j[k]){
+						if ("block" === j[k] || "fill" === j[k] || "circle" === j[k]) {
 							i.qansBySolver = 1;}
-						else if ("dot" === j[k]){
+						else if ("triangle" === j[k]){
+							i.qansBySolver = 2;}
+						else if ("square" === j[k]) {
+							i.qansBySolver = 3;}
+						else if ("dot" === j[k]) {
 							i.qsubBySolver = 1;}
 						else if ("aboloUpperLeft" === j[k]){
 							i.qansBySolver = 5;}
@@ -189,25 +226,29 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForBorders: function() {
 			for (var a = !1, b = 0; b < this.border.length; ++b) {
 				var c = this.border[b];
-				0 === c.lineBySolver && 0 === c.qsubBySolver || (c.lineBySolver = 0, c.qsubBySolver = 0, a = !0)
+				0 === c.lineBySolver && 0 === c.qsubBySolver && c.edgeBySolver === 0 || (c.lineBySolver = 0, c.qsubBySolver = 0, c.edgeBySolver = 0, a = !0)
 			}
 			return a
 		},
 
-		updateSolverAnswerForBorders: function(a) {
-			if (this.clearSolverAnswerForBorders(), "string" !== typeof a) {
+		updateSolverAnswerForBorders: function(result) {
+			if (this.clearSolverAnswerForBorders(), "string" !== typeof result) {
 				for (var b = [], c = 0; c < 2 * this.rows + 1; ++c) {
 					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) 
 						{d.push([]);}
 					b.push(d)
 				}
-				for (var f = a.data, g = 0; g < f.length; ++g) {
+				for (var f = result.data, g = 0; g < f.length; ++g) {
 					var h = f[g];
 					"green" === h.color && (h.x % 2 !== h.y % 2 && b[h.y][h.x].push(h.item))
 				}
 				for (var g = 0; g < this.border.length; ++g) {
-					for (var i = this.border[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k){
-						 "line" === j[k] || "wall" === j[k] ? i.lineBySolver = 1 : "cross" === j[k] && (i.qsubBySolver = 2)}}
+					for (var i = this.border[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k) {
+						if ("line" === j[k] || "wall" === j[k]) { i.lineBySolver = 1; }
+						else if ("boldWall" === j[k]) { i.edgeBySolver = 1; }
+						else if ("cross" === j[k]) { i.qsubBySolver = 2; }
+					}
+				}
 			} else {
 				for (var g = 0; g < this.border.length; ++g) {
 					var i = this.border[g];

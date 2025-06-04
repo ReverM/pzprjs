@@ -126,7 +126,7 @@
 		},
 
 		getShadedCellColor: function(cell) {
-			if (!cell.isShade()) {
+			if (!cell.isShade() && cell.qansBySolver !== 1) {
 				return null;
 			}
 
@@ -139,7 +139,7 @@
 			} else if (info === -1) {
 				return this.noerrcolor;
 			}
-			return cell.qnum !== -1 ? this.shadecolor : this.qanscolor;
+			return cell.qnum !== -1 ? this.shadecolor : this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
 		}
 	},
 	"Graphic@mrtile,archipelago": {

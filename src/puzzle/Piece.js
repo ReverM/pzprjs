@@ -24,15 +24,19 @@ pzpr.classmgr.makeCommon({
 		qnum3: -1,
 		qnum4: -1,
 		qnums: [],
-
 		qchar: 0, // excell:キンコンカンの文字
 
 		/* 回答データを保持するプロパティ */
 		qans: 0, // cell  :(1:黒マス/あかり 2-5:三角形 11-13:棒 31-32:斜線 41-50:ふとん)
 		// border:(回答の境界線)
+
+		qcandBySolver: [],
 		qansBySolver: 0,
 		qsubBySolver: 0,
 		lineBySolver: 0,
+		edgeBySolver: 0,
+		numsBySolver: [],
+
 		anum: -1, // cell  :(セルの数字/○△□/単体矢印)
 		line: 0, // border:(ましゅやスリリンなどの線)
 
@@ -179,6 +183,7 @@ pzpr.classmgr.makeCommon({
 				if (this.prehook[prop].call(this, num) && !force) {
 					return;
 				}
+				
 			}
 
 			this.addOpe(prop, this[prop], num);
@@ -958,6 +963,9 @@ pzpr.classmgr.makeCommon({
 		//---------------------------------------------------------------------------
 		isBorder: function() {
 			return this.ques > 0 || this.qans > 0;
+		},
+		isBorderBySolver: function() {
+			return this.edgeBySolver > 0;
 		},
 		setBorder: function() {
 			if (this.puzzle.editmode) {

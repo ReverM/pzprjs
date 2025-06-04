@@ -231,7 +231,7 @@
 	Graphic: {
 		enablebcolor: true,
 
-		paint: function() {
+		paint: function () {
 			this.drawBGCells();
 			this.drawTargetSubNumber();
 			this.drawGrid();
@@ -247,14 +247,14 @@
 			this.drawCursor();
 		},
 
-		getNumberTextCore: function(num) {
+		getNumberTextCore: function (num) {
 			if (num > 0) {
 				return "○△◻"[num - 1];
 			}
 			return null;
 		},
 
-		drawQnumMarks: function() {
+		drawQnumMarks: function () {
 			var g = this.vinc("cell_mark", "auto");
 
 			g.lineWidth = Math.max(this.cw / 18, 2);
@@ -297,6 +297,35 @@
 						g.vhide();
 						break;
 				}
+
+			/*	g.vid = "c_mk_solver" + cell.id;
+				g.strokeStyle = this.getColorSolverAware(true, false);
+				switch (cell.qansBySolver) {
+					case 1:
+						g.strokeCircle(px, py, rsize);
+						break;
+					case 2:
+						g.beginPath();
+						g.setOffsetLinePath(
+							px,
+							py,
+							0,
+							-tsize,
+							-rsize,
+							tsize,
+							rsize,
+							tsize,
+							true
+						);
+						g.stroke();
+						break;
+					case 3:
+						g.strokeRectCenter(px, py, rsize, rsize);
+						break;
+					default:
+						g.vhide();
+						break;
+				}*/
 			}
 		}
 	},
