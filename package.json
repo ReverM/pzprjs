@@ -21,7 +21,7 @@
     "node": ">= 14.0"
   },
   "scripts": {
-    "build": "eslint --cache --quiet src src-ui && \"./git-hash.sh\" && grunt default",
+    "build": "eslint --cache --quiet src src-ui && grunt default",
     "release": "npm run clean && eslint --cache --quiet src && grunt release",
     "clean": "del dist/* pzpr-*.{zip,tar.gz,tar.bz2,tgz}",
     "format": "prettier --write \"{src,src-ui,test}/**/*.{js,css}\"",
@@ -32,6 +32,7 @@
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.27.1",
     "del-cli": "^4.0.1",
     "eslint": "^8.43.0",
     "grunt": "^1.5.3",
@@ -42,7 +43,9 @@
     "nyc": "^15.1.0",
     "prettier": "^1.19.1"
   },
+
   "dependencies": {
+    "promise": "^8.3.0",
     "pzpr-canvas": "0.8.2",
     "source-map-support": "^0.5.21"
   }

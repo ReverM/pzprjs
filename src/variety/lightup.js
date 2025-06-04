@@ -283,12 +283,12 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				g.vid = "c_AK_" + cell.id;
-				if (cell.isAkari()) {
+				if (cell.isAkari() || cell.qansBySolver === 1) {
 					g.fillStyle =
 						cell.error === 4
 							? this.errcolor1
 							: !cell.trial
-							? lampcolor
+							? this.getColorSolverAware(cell.isAkari(), cell.qansBySolver === 1, lampcolor)
 							: this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, rsize);
 				} else {

@@ -24,6 +24,7 @@ if ('serviceWorker' in navigator) {
 </script>
 <script type="text/javascript" src="./js/pzpr.js?<%= git.hash %>"></script>
 <script type="text/javascript" src="./js/pzpr-ui.js?<%= git.hash %>"></script>
+<script type="module" src="./js/solver.js?<%= git.hash %>"></script>
 <title>puzz.link player</title>
 </head>
 
@@ -362,6 +363,17 @@ if ('serviceWorker' in navigator) {
         <span>__irowakeblk.tool__</span>
       </label>
       <button class="btn" data-button-exec="irowake">__irowakeblk.change__</button>
+    </div>
+    <div>
+      <span class="config" data-config="autosolver">
+        <label>
+          <input type="checkbox">
+          <span>__solver.auto__</span>
+        </label>
+      </span>
+      <span class="config" data-config="run_autosolver">
+        <button class="btn" data-button-exec="run_autosolver">__solver.run__</button>
+      </span>
     </div>
   </div>
   <hr class="separator" id="separator1">

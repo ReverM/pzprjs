@@ -157,7 +157,7 @@
 		},
 
 		getShadedCellColor: function(cell) {
-			if (!cell.isShade()) {
+			if (!cell.isShade() && cell.qansBySolver !== 1) {
 				return null;
 			}
 
@@ -168,7 +168,7 @@
 			} else if (cell.trial) {
 				return this.trialcolor;
 			}
-			return cell.qnum !== -1 ? this.shadecolor : this.qanscolor;
+			return cell.qnum !== -1 ? this.shadecolor : this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
 		},
 		getQuesNumberColor: function(cell) {
 			return cell.qcmp === 1 ? this.qcmpcolor : this.fontShadecolor;
