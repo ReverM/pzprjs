@@ -268,7 +268,7 @@
 				g.strokeStyle =
 					cell.qnum !== -1
 						? this.getQuesNumberColor(cell)
-						: this.getAnsNumberColor(cell);
+						: this.getColorSolverAware((cell.getNum() > 0) && (cell.getNum() < 4), (cell.qansBySolver > 0) && (cell.qansBySolver < 4), this.getAnsNumberColor(cell));
 				var px = cell.bx * this.bw,
 					py = cell.by * this.bh;
 				switch (cell.getNum()) {
@@ -298,8 +298,8 @@
 						break;
 				}
 
-			/*	g.vid = "c_mk_solver" + cell.id;
-				g.strokeStyle = this.getColorSolverAware(true, false);
+				g.vid = "c_mk_solver" + cell.id;
+				g.strokeStyle = this.getColorSolverAware((cell.getNum() > 0) && (cell.getNum() < 4), (cell.qansBySolver > 0) && (cell.qansBySolver < 4), this.getAnsNumberColor(cell) );
 				switch (cell.qansBySolver) {
 					case 1:
 						g.strokeCircle(px, py, rsize);
@@ -325,7 +325,7 @@
 					default:
 						g.vhide();
 						break;
-				}*/
+				}
 			}
 		}
 	},

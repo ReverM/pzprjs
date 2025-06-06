@@ -31,6 +31,7 @@ pzpr.classmgr.makeCommon({
 		// border:(回答の境界線)
 
 		qcandBySolver: [],
+		qnumBySolver: -1,
 		qansBySolver: 0,
 		qsubBySolver: 0,
 		lineBySolver: 0,
