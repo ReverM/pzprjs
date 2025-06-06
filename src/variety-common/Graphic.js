@@ -240,24 +240,25 @@ pzpr.classmgr.makeCommon({
 				var cell = clist[i];
 
 				g.vid = "c_dot_" + cell.id;
-				if (cell.isDot() || cell.isDotBySolver()) {
+				if (cell.isDot()) {
 					g.fillStyle = !cell.trial ? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver) : this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 				} else {
 					g.vhide();
 				}
 			}
+			this.drawDotForSolverCells();
 		},
 
 		drawDotForSolverCells: function () {
-			var g = this.vinc("cell_dot", "auto", true);
+			var g = this.vinc("cell_dot_for_solver", "auto", true);
 
 			var dsize = Math.max(this.cw * 0.06, 2);
 			var clist = this.range.cells;
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 
-				g.vid = "c_dot_" + cell.id;
+				g.vid = "c_dot_for_solver" + cell.id;
 				if (cell.isDotBySolver()) {
 					g.fillStyle = !cell.trial ? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver) : this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
@@ -600,8 +601,8 @@ pzpr.classmgr.makeCommon({
 			return this.getNumberText(cell, cell.anum);
 		},
 		getSolverAnsNumberText: function(cell) {
-			if (cell.qansBySolver === 0) {return ""}
-            return this.getNumberText(cell, cell.qansBySolver);
+			if (cell.qnumBySolver === -1) {return ""}
+            return this.getNumberText(cell, cell.qnumBySolver);
         },
 
 		getNumberText: function(cell, num) {
@@ -904,6 +905,7 @@ pzpr.classmgr.makeCommon({
 				"cell_text_",
 				{ ratio: 0.65 }
 			);
+			this.drawSolverAnsNumbers();
 		},
 
 		//---------------------------------------------------------------------------

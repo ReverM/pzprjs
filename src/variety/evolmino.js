@@ -503,14 +503,14 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				g.vid = "c_sq_" + cell.id;
-				if (cell.qnum === 1 || cell.anum === 1) {
+				if (cell.qnum === 1 || cell.anum === 1 || cell.qansBySolver === 3) {
 					g.strokeStyle =
 						cell.error === 1
 							? this.sq_errorcolor
 							: cell.qnum === 1
 							? this.sq_qcolor
 							: !cell.trial
-							? this.sq_anscolor
+							? this.getColorSolverAware(cell.anum === 1, cell.qansBySolver === 3 , this.sq_anscolor)    
 							: this.sq_trialcolor;
 					g.strokeRectCenter(cell.bx * this.bw, cell.by * this.bh, rw, rh);
 				} else {
@@ -527,8 +527,8 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				g.vid = "c_dot_" + cell.id;
-				if (cell.isDot()) {
-					g.fillStyle = !cell.trial ? this.dot_anscolor : this.dot_trialcolor;
+				if (cell.isDot() || cell.isDotBySolver()) {
+					g.fillStyle = !cell.trial ? this.getColorSolverAware(cell.isDot(), cell.isDotBySolver(), this.dot_anscolor ) : this.dot_trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 				} else {
 					g.vhide();
