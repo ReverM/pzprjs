@@ -613,11 +613,11 @@
 		getBorderColor: function(border) {
 			if (border.ques === 1) {
 				return this.quescolor;
-			} else if (border.qans === 1) {
+			} else if (border.qans === 1 || border.isBorderBySolver()) {
 				return border.error
 					? "red"
 					: !border.trial
-					? this.qanscolor
+					? this.getColorSolverAware(border.isBorder(), border.isBorderBySolver(), this.qanscolor)
 					: this.trialcolor;
 			}
 			return null;
@@ -633,7 +633,7 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				var dir = cell.getPencilDir();
-				var color = this.getCellArrowColor(cell);
+				var color = (1 === this.isSameSymbol(cell.getPencilDir(), [cell.UP, cell.DN, cell.LT, cell.RT], this.qansBySolver, [8, 6, 9, 7])) ? this.solverqanscolor : this.getCellArrowColor(cell);
 
 				g.lineWidth = (this.lw + this.addlw) / 2;
 				if (!!color) {
@@ -692,8 +692,78 @@
 					g.vhide();
 				}
 			}
+			this.drawCellArrowsForSolver();
 		},
+		drawCellArrowsForSolver: function () {
+			var g = this.vinc("cell_arrow_solver", "crispEdges");
 
+			var outer = this.cw * 0.5;
+			var inner = this.cw * 0.25;
+
+			var clist = this.range.cells;
+			for (var i = 0; i < clist.length; i++) {
+				var cell = clist[i];
+				var dir = cell.qansBySolver;
+				var color = (1 === this.isSameSymbol(cell.getPencilDir(), [cell.UP, cell.DN, cell.LT, cell.RT], dir, [8, 6, 9, 7])) ? this.solverqanscolor : this.solvercolor;
+
+				g.lineWidth = (this.lw + this.addlw) / 2;
+				if (!!color) {
+					g.fillStyle = color;
+					g.strokeStyle = color;
+					var px = cell.bx * this.bw,
+						py = cell.by * this.bh;
+					var idx = [0, 0, 0, 0];
+
+					switch (dir) {
+						case 8:
+							idx = [1, 1, -1, 1];
+							break;
+						case 6:
+							idx = [1, -1, -1, -1];
+							break;
+						case 9:
+							idx = [1, -1, 1, 1];
+							break;
+						case 7:
+							idx = [-1, -1, -1, 1];
+							break;
+					}
+
+					g.vid = "c_arrow_solver_" + cell.id;
+					g.setOffsetLinePath(
+						px,
+						py,
+						0,
+						0,
+						idx[0] * inner,
+						idx[1] * inner,
+						idx[2] * inner,
+						idx[3] * inner,
+						true
+					);
+					g.fill();
+
+					g.vid = "c_arrow_outer_solver_" + cell.id;
+					g.setOffsetLinePath(
+						px,
+						py,
+						0,
+						0,
+						idx[0] * outer,
+						idx[1] * outer,
+						idx[2] * outer,
+						idx[3] * outer,
+						true
+					);
+					g.stroke();
+				} else {
+					g.vid = "c_arrow_solver_" + cell.id;
+					g.vhide();
+					g.vid = "c_arrow_outer_solver_" + cell.id;
+					g.vhide();
+				}
+			}
+		},
 		getCellArrowColor: function(cell) {
 			if (cell.getPencilDir()) {
 				if (cell.qdir) {

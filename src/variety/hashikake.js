@@ -280,7 +280,7 @@
 			var blist = this.range.borders;
 			for (var i = 0; i < blist.length; i++) {
 				var border = blist[i],
-					color = this.getLineColor(border);
+					color = this.getColorSolverAware(border.isLine(), border.isLineBySolver(), this.getLineColor(border));
 				var isvert = border.isVert();
 				var px = border.bx * this.bw,
 					py = border.by * this.bh;
@@ -288,7 +288,7 @@
 
 				g.fillStyle = color;
 				g.vid = "b_line_" + border.id;
-				if (!!color && border.line === 1) {
+				if (!!color && (border.line === 1 || border.lineBySolver === 1)) {
 					if (!isvert) {
 						g.fillRectCenter(px, py, lm, this.bh + lm);
 					} else {
@@ -299,7 +299,7 @@
 				}
 
 				g.vid = "b_dline_" + border.id;
-				if (!!color && border.line === 2) {
+				if (!!color && (border.line === 2 || border.lineBySolver === 2)) {
 					g.beginPath();
 					if (!isvert) {
 						g.rectcenter(px - ls, py, lm, this.bh + lm);

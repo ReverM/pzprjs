@@ -268,7 +268,7 @@
 				g.strokeStyle =
 					cell.qnum !== -1
 						? this.getQuesNumberColor(cell)
-						: this.getColorSolverAware((cell.getNum() > 0) && (cell.getNum() < 4), (cell.qansBySolver > 0) && (cell.qansBySolver < 4), this.getAnsNumberColor(cell));
+						: ((1 === this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [1, 2, 3])) ? this.solverqanscolor : this.getAnsNumberColor(cell))
 				var px = cell.bx * this.bw,
 					py = cell.by * this.bh;
 				switch (cell.getNum()) {
@@ -299,7 +299,7 @@
 				}
 
 				g.vid = "c_mk_solver" + cell.id;
-				g.strokeStyle = this.getColorSolverAware((cell.getNum() > 0) && (cell.getNum() < 4), (cell.qansBySolver > 0) && (cell.qansBySolver < 4), this.getAnsNumberColor(cell) );
+				g.strokeStyle = (1 === this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [1, 2, 3])) ? this.solverqanscolor : this.solvercolor;
 				switch (cell.qansBySolver) {
 					case 1:
 						g.strokeCircle(px, py, rsize);
