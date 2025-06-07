@@ -213,6 +213,133 @@
 				}
 			}
 		},
+
+		drawArcBackgroundForSolver: function () {
+			var g = this.vinc("arc_back_solver", "crispEdges");
+			var clist = this.range.borders.cellinside();
+			var pad = this.lw,
+				bigpad = this.bw / 2;
+			for (var i = 0; i < clist.length; i++) {
+				var cell = clist[i],
+					color = cell.qansBySolver ? this.getBGCellColor(cell) : null;
+				g.vid = "c_arc_bg_solver_" + cell.id;
+				if (!!color) {
+					g.fillStyle = color;
+
+					if (cell.lcnt === 4) {
+						g.fillRectCenter(
+							cell.bx * this.bw,
+							cell.by * this.bh,
+							this.bw - pad,
+							this.bh - pad
+						);
+					} else if (cell.qansBySolver === 3) {
+						g.fillRectCenter(
+							cell.bx * this.bw,
+							cell.by * this.bh,
+							this.bw / 2,
+							this.bh / 2
+						);
+					} else {
+						var adj = cell.adjborder;
+						var ox, oy;
+						if (
+							(cell.qansBySolver === 1 && adj.top.isLineBySolver() && adj.left.isLineBySolver()) ||
+							(cell.qansBySolver === 2 && adj.bottom.isLineBySolver() && adj.left.isLineBySolver())
+						) {
+							ox = (cell.bx - 1) * this.bw - pad + bigpad;
+						} else {
+							ox = cell.bx * this.bw + pad - bigpad;
+						}
+						if (
+							(cell.qansBySolver === 1 && adj.left.isLineBySolver() && adj.top.isLineBySolver()) ||
+							(cell.qansBySolver === 2 && adj.right.isLineBySolver() && adj.top.isLineBySolver())
+						) {
+							oy = (cell.by - 1) * this.bh - pad + bigpad;
+						} else {
+							oy = cell.by * this.bh + pad - bigpad;
+						}
+
+						var w = this.bw + bigpad - pad * 2;
+						var h = this.bw + bigpad - pad * 2;
+						g.fillRect(ox, oy, w, h);
+					}
+				} else {
+					g.vhide();
+				}
+			}
+		},
+		drawArcCorners: function () {
+			var g = this.vinc("arcs", "auto", true);
+			g.lineWidth = this.lm * 2;
+			var rsize = this.bw;
+			var clist = this.range.borders.cellinside();
+			for (var i = 0; i < clist.length; i++) {
+				var cell = clist[i];
+				var px1 = (cell.bx - 1) * this.bw,
+					py1 = (cell.by - 1) * this.bh,
+					px2 = (cell.bx + 1) * this.bw,
+					py2 = (cell.by + 1) * this.bh;
+
+				var adj = cell.adjborder;
+
+				for (var arc = 0; arc < 4; arc++) {
+					var showArc = false;
+					var color = null;
+					switch (arc) {
+						case 0:
+							showArc =
+								cell.qans === 1 && adj.top.isLine() && adj.left.isLine();
+							color = showArc ? this.getColorSolverAware(cell.qans === 1 && adj.top.isLine() && adj.left.isLine(),
+								cell.qansBySolver === 1 && adj.top.isLineBySolver() && adj.left.isLineBySolver(), this.getLineColor(adj.top)) : null;
+							break;
+						case 1:
+							showArc =
+								cell.qans === 2 && adj.top.isLine() && adj.right.isLine();
+							color = showArc ? this.getColorSolverAware(cell.qans === 2 && adj.top.isLine() && adj.right.isLine(),
+								cell.qansBySolver === 2 && adj.top.isLineBySolver() && adj.right.isLineBySolver(), this.getLineColor(adj.top)) : null;
+							break;
+						case 2:
+							showArc =
+								cell.qans === 1 && adj.bottom.isLine() && adj.right.isLine();
+							color = showArc ? this.getColorSolverAware(cell.qans === 1 && adj.bottom.isLine() && adj.right.isLine(),
+								cell.qansBySolver === 1 && adj.bottom.isLineBySolver() && adj.right.isLineBySolver(), this.getLineColor(adj.bottom)) : null;
+							break;
+						case 3:
+							showArc =
+								cell.qans === 2 && adj.bottom.isLine() && adj.left.isLine();
+							color = showArc ? this.getColorSolverAware(cell.qans === 2 && adj.bottom.isLine() && adj.left.isLine(),
+								cell.qansBySolver === 2 && adj.bottom.isLineBySolver() && adj.left.isLineBySolver(), this.getLineColor(adj.bottom)) : null;
+							break;
+					}
+					g.vid = "c_arc_" + arc + "_" + cell.id;
+						if (!!color) {
+							g.beginPath();
+							g.strokeStyle = color;
+
+							switch (arc) {
+								case 0:
+									g.arc(px1, py1, rsize, 0, Math.PI / 2);
+									break;
+								case 1:
+									g.arc(px2, py1, rsize, Math.PI / 2, Math.PI);
+									break;
+								case 2:
+									g.arc(px2, py2, rsize, Math.PI, Math.PI * 1.5);
+									break;
+								case 3:
+									g.arc(px1, py2, rsize, Math.PI * 1.5, Math.PI * 2);
+									break;
+							}
+							g.stroke();
+						} else {
+							g.vhide();
+					}
+				}
+			}
+			
+			this.drawArcBackgroundForSolver();
+		},
 		Border: {
 			enableLineNG: true,
 			isLineNG: function() {
@@ -473,6 +600,7 @@
 						g.vhide();
 					}
 				}
+
 			},
 			drawArcCorners: function() {
 				var g = this.vinc("arcs", "auto", true);
@@ -485,7 +613,6 @@
 						py1 = (cell.by - 1) * this.bh,
 						px2 = (cell.bx + 1) * this.bw,
 						py2 = (cell.by + 1) * this.bh;
-
 					var adj = cell.adjborder;
 
 					for (var arc = 0; arc < 4; arc++) {
@@ -538,9 +665,80 @@
 							g.vhide();
 						}
 					}
+				}				
+			this.drawArcCornersForSolver();
+		},
+		drawArcCornersForSolver: function() {
+			var g = this.vinc("arcs_solver", "auto", true);
+			g.lineWidth = this.lm * 2;
+			var rsize = this.bw;
+			var clist = this.range.borders.cellinside();
+			for (var i = 0; i < clist.length; i++) {
+				var cell = clist[i];
+				var px1 = (cell.bx - 1) * this.bw,
+					py1 = (cell.by - 1) * this.bh,
+					px2 = (cell.bx + 1) * this.bw,
+					py2 = (cell.by + 1) * this.bh;
+
+				var adj = cell.adjborder;
+
+				for (var arc = 0; arc < 4; arc++) {
+					var showArc = false;
+					var color = null;
+					switch (arc) {
+						case 0:
+							showArc =
+								(cell.qansBySolver === 1 && adj.top.isLineBySolver() && adj.left.isLineBySolver());
+							color = showArc ? this.getColorSolverAware(cell.qans === 1 && adj.top.isLine() && adj.left.isLine(),
+								cell.qansBySolver === 1 && adj.top.isLineBySolver() && adj.left.isLineBySolver(), this.getLineColor(adj.top)) : null;
+							break;
+						case 1:
+							showArc =
+								cell.qansBySolver === 2 && adj.top.isLineBySolver() && adj.right.isLineBySolver();
+							color = showArc ? this.getColorSolverAware(cell.qans === 2 && adj.top.isLine() && adj.right.isLine(),
+								cell.qansBySolver === 2 && adj.top.isLineBySolver() && adj.right.isLineBySolver(), this.getLineColor(adj.top)) : null;
+							break;
+						case 2:
+							showArc =
+								cell.qansBySolver === 1 && adj.bottom.isLineBySolver() && adj.right.isLineBySolver();
+							color = showArc ? this.getColorSolverAware(cell.qans === 1 && adj.bottom.isLine() && adj.right.isLine(),
+								cell.qansBySolver === 1 && adj.bottom.isLineBySolver() && adj.right.isLineBySolver(), this.getLineColor(adj.bottom)) : null;
+							break;
+						case 3:
+							showArc =
+								cell.qansBySolver === 2 && adj.bottom.isLineBySolver() && adj.left.isLineBySolver();
+							color = showArc ? this.getColorSolverAware(cell.qans === 2 && adj.bottom.isLine() && adj.left.isLine(),
+								cell.qansBySolver === 2 && adj.bottom.isLineBySolver() && adj.left.isLineBySolver(), this.getLineColor(adj.bottom)) : null;
+							break;
+					}
+
+					g.vid = "c_arc_by_solver_" + arc + "_" + cell.id;
+					if (!!color) {
+						g.beginPath();
+						g.strokeStyle = color;
+
+						switch (arc) {
+							case 0:
+								g.arc(px1, py1, rsize, 0, Math.PI / 2);
+								break;
+							case 1:
+								g.arc(px2, py1, rsize, Math.PI / 2, Math.PI);
+								break;
+							case 2:
+								g.arc(px2, py2, rsize, Math.PI, Math.PI * 1.5);
+								break;
+							case 3:
+								g.arc(px1, py2, rsize, Math.PI * 1.5, Math.PI * 2);
+								break;
+						}
+						g.stroke();
+					} else {
+						g.vhide();
+					}
 				}
 			}
-		},
+		}
+	},
 		LineGraph: {
 			enabled: true
 		},

@@ -36,7 +36,7 @@ pzpr.classmgr.makeCommon({
 		qsubBySolver: 0,
 		lineBySolver: 0,
 		edgeBySolver: 0,
-		numsBySolver: [],
+		destBySolver: [],
 
 		anum: -1, // cell  :(セルの数字/○△□/単体矢印)
 		line: 0, // border:(ましゅやスリリンなどの線)

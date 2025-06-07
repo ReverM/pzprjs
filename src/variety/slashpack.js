@@ -324,12 +324,12 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 
-				if (cell.qsub & 1) {
+				if (cell.qsub & 1 || cell.qsubBySolver & 1) {
 					var px = cell.bx * this.bw;
 					var py = cell.by * this.bh;
 					g.vid = "c_MB_" + cell.id;
 					g.lineWidth = 1;
-					g.strokeStyle = !cell.trial ? this.mbcolor : "rgb(192, 192, 192)";
+					g.strokeStyle = !cell.trial ? this.getColorSolverAware(cell.qsub & 1, cell.qsubBySolver & 1, this.mbcolor) : "rgb(192, 192, 192)";
 					g.strokeCircle(px, py, rsize);
 				} else {
 					g.vid = "c_MB_" + cell.id;

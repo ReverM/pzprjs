@@ -42,6 +42,14 @@ pzpr.classmgr.makeCommon({
             return a && b ? this.solverqanscolor : b ? this.solvercolor : c || this.qanscolor
 		},
 
+		isSameSymbol: function (answerKey, answerDict, solverKey, solverDict) {
+			var l = answerDict.length;
+			var overlap = 0;
+			for (var i = 0; i < l; i++) {
+				if (answerKey === answerDict[i] && solverKey === solverDict[i]) { overlap = 1; }
+			}
+			return overlap;
+		},
 
 		//---------------------------------------------------------------------------
 		// pc.drawShadedCells()    Cellの、境界線の上から描画される回答の黒マスをCanvasに書き込む
@@ -446,6 +454,8 @@ pzpr.classmgr.makeCommon({
 					g.vid = "c_slash_" + slash + "_" + cell.id;
 
 					var isQues = cell.ques >= 31 && cell.ques <= 33;
+					var isSolv = cell.qansBySolver >= 31 && cell.qansBySolver <= 33;
+					var isAns = cell.qans >= 31 && cell.qans <= 33;
 					var value = isQues ? cell.ques : cell.qans;
 
 					if (value === 33 || value === (slash ? 32 : 31)) {
@@ -485,7 +495,99 @@ pzpr.classmgr.makeCommon({
 						} else if (cell.trial) {
 							color = this.linetrialcolor;
 						} else {
-							color = this.linecolor;
+							color = (1 === this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [31, 32, 33])) ? this.solverqanscolor : this.linecolor;
+						}
+
+						g.lineWidth = basewidth + addwidth;
+						g.strokeStyle = color;
+						g.beginPath();
+						var px = cell.bx * this.bw,
+							py = cell.by * this.bh;
+						if (!slash) {
+							g.setOffsetLinePath(
+								px,
+								py,
+								-this.bw,
+								-this.bh,
+								this.bw,
+								this.bh,
+								true
+							);
+						} else {
+							g.setOffsetLinePath(
+								px,
+								py,
+								this.bw,
+								-this.bh,
+								-this.bw,
+								this.bh,
+								true
+							);
+						}
+						g.stroke();
+					} else {
+						g.vhide();
+					}
+				}
+			}
+			this.drawSlashesForSolver();
+		},
+
+		drawSlashesForSolver: function () {
+			var g = this.vinc("cell_slash_for_solver", "auto");
+
+			var basewidth = Math.max(this.bw / 4, 2);
+			var irowake = this.puzzle.execConfig("irowake");
+
+			var clist = this.range.cells;
+			for (var slash = 0; slash <= 1; slash++) {
+				for (var i = 0; i < clist.length; i++) {
+					var cell = clist[i];
+					g.vid = "c_slash_solver_" + slash + "_" + cell.id;
+
+					var isQues = cell.ques >= 31 && cell.ques <= 33;
+					var isSolv = cell.qansBySolver >= 31 && cell.qansBySolver <= 33;
+					var isAns = cell.qans >= 31 && cell.qans <= 33;
+					var value = cell.qansBySolver;
+
+					if (value === 33 || value === (slash ? 32 : 31)) {
+						var info = cell.qinfo || cell.error,
+							addwidth = 0,
+							color;
+						if (isQues) {
+							addwidth = -basewidth / 2;
+						} else if (cell.trial && this.puzzle.execConfig("irowake")) {
+							addwidth = -basewidth / 2;
+						} else if (
+							(this.pid === "gokigen" || this.pid === "wagiri") &&
+							(info === 1 || info === 3)
+						) {
+							addwidth = basewidth / 2;
+						}
+
+						if (isQues) {
+							color = this.quescolor;
+						} else if (this.pid !== "kinkonkan" && info > 0) {
+							if (info & (slash ? 4 : 8)) {
+								color = this.noerrcolor;
+							} else if (info & 1) {
+								color = this.errcolor1;
+							} else if (info & 2) {
+								color = this.errcolor2;
+							}
+						} else if (info === -1) {
+							color = this.noerrcolor;
+						} else if (irowake && value === 33) {
+							color =
+								!!slash === cell.parity() ? cell.path.color : cell.path2.color;
+						} else if (irowake && cell.path && cell.path.color) {
+							color = cell.path.color;
+						} else if (irowake && cell.path2 && cell.path2.color) {
+							color = cell.path2.color;
+						} else if (cell.trial) {
+							color = this.linetrialcolor;
+						} else {
+							color = (1 === this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [31, 32, 33])) ? this.solverqanscolor : this.solvercolor;
 						}
 
 						g.lineWidth = basewidth + addwidth;
@@ -547,6 +649,7 @@ pzpr.classmgr.makeCommon({
 				{}
 			);
 			this.drawSolverAnsNumbers();
+			this.drawCandidateNumbers();
 		},
 		drawSolverAnsNumbers: function() {
             this.vinc("cell_solver_ans_number", "auto");

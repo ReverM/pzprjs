@@ -102,30 +102,7 @@ pzpr.classmgr.makeCommon({
 
 		autoSolve: function(force) {
 			this.answers = null;
-			var updateCells =
-				/*[
-					"nurimisaki",
-					"nurikabe",
-					"lits",
-					"heyawake",
-					"cave",
-					"lightup",
-					"shakashaka",
-					"aqre",
-					"tapa",
-					"shimaguni",
-					"norinori",
-					"kakuro",
-					"sudoku",
-					"cbanana",
-					"clamp",
-					"stostone",
-					"kakuro",
-					"chainedb",
-					"kurotto",
-					"nothree",
-					"creek"
-				].indexOf(this.pid) >= 0;*/ true;
+			var updateCells = !(this.pid === "kouchoku");
 			var updateBorders = /*
 				[
 					"slither",
@@ -159,7 +136,7 @@ pzpr.classmgr.makeCommon({
 			if (updateBorders) {
 				this.updateSolverAnswerForBorders(result);
 			}
-
+			this.updateSolverAnswerForCrosses(result);
 			this.puzzle.painter.paintAll();
 		},
 
@@ -167,7 +144,7 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForCells: function() {
 			for (var a = !1, b = 0; b < this.cell.length; ++b) {
 				var c = this.cell[b];
-				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0)
+				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
 			}
 			return a
 		},
@@ -192,15 +169,15 @@ pzpr.classmgr.makeCommon({
 					}
 				}
 				for (var g = 0; g < this.cell.length; ++g) {
-					var i = this.cell[g]
+					var i = this.cell[g];
 					for (j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k) {
-						if ("block" === j[k] || "fill" === j[k] || ("circle" === j[k] && "doppelblock" !== this.pid)) {
+						if ("block" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
 							i.qansBySolver = 1;
 						}
-						else if ("triangle" === j[k]) {
+						else if ("triangle" === j[k] || "firewalkCellUr" === j[k] || "firewalkCellDl" === j[k] || "firewalkCellUrDl" === j[k]) {
 							i.qansBySolver = 2;
 						}
-						else if ("square" === j[k]) {
+						else if ("square" === j[k] || "firewalkCellUnknown" === j[k]) {
 							i.qansBySolver = 3;
 						}
 						else if ("dot" === j[k] || ("circle" === j[k] && "doppelblock" === this.pid)) {
@@ -217,6 +194,24 @@ pzpr.classmgr.makeCommon({
 						}
 						else if ("aboloLowerRight" === j[k]) {
 							i.qansBySolver = 3;
+						}
+						else if ("pencilUp" === j[k]) {
+							i.qansBySolver = 6;
+						}
+						else if ("pencilLeft" === j[k]) {
+							i.qansBySolver = 7;
+						}
+						else if ("pencilDown" === j[k]) {
+							i.qansBySolver = 8;
+						}
+						else if ("pencilRight" === j[k]) {
+							i.qansBySolver = 9;
+						}
+						else if ("slash" === j[k]) {
+							i.qansBySolver = 32;
+						}
+						else if ("backslash" === j[k]) {
+							i.qansBySolver = 31;
 						}
 						else if (j[k].kind) {
 							if ("text" === j[k].kind) {
@@ -278,6 +273,7 @@ pzpr.classmgr.makeCommon({
 				for (var g = 0; g < this.border.length; ++g) {
 					for (var i = this.border[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k) {
 						if ("line" === j[k] || "wall" === j[k]) { i.lineBySolver = 1; }
+						else if ("doubleLine" === j[k]) { i.lineBySolver = 2; }
 						else if ("boldWall" === j[k]) {
 							"firefly" === this.pid ? i.lineBySolver = 1 : i.edgeBySolver = 1;
 						}
@@ -290,6 +286,48 @@ pzpr.classmgr.makeCommon({
 					i.qsubBySolver = 2
 				}
 			}
+		},
+
+		clearSolverAnswerForCrosses: function () {
+			for (var a = !1, b = 0; b < this.cross.length; ++b) {
+				var c = this.cross[b];
+				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
+			}
+			return a
+		},
+		updateSolverAnswerForCrosses: function (result) {
+			if (this.clearSolverAnswerForCrosses(), "string" !== typeof result) {
+				for (var b = [], c = 0; c < 2 * this.rows + 1; ++c) {
+					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) { d.push([]); }
+					b.push(d)
+				}
+				for (var f = result.data, g = 0; g < f.length; ++g) {
+					var h = f[g];
+					if ("kouchoku" === this.pid) { "green" === h.color && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y-1)][(h.x-1)].push(h.item)) }
+				}
+			
+			for (var g = 0; g < this.cross.length; ++g) {
+				for (var i = this.cross[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k) {
+					i.qansBySolver = 1;
+					if (j[k].kind) {
+						if ("lineTo" === j[k].kind) {
+							i.qansBySolver = 1;
+							for (var p = 0; p < this.cross.length; p++) {
+								if (j[k].destX - 1 === this.cross[p].bx && j[k].destY - 1 === this.cross[p].by) { this.cross[p].destBySolver.push(i.id); break;  }
+							}
+						}
+					}
+				}
+			}
+
+		}
+				else {
+					for (var g = 0; g < this.cross.length; ++g) {
+						var i = this.cross[g]
+						i.qansBySolver = 1;
+						i.destBySolver.push(this.cross[0].id);
+					}
+				}
 		},
 		showAnswer: function() {
 			if (this.answers) {
