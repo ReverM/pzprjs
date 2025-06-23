@@ -1,4 +1,5 @@
 var Solver = null;
+window.nextTag = 0;
 
 Module().then(function (mod) {
 	Solver = mod;
@@ -15,6 +16,5 @@ window.solveProblem = function (url) {
 	var length = Solver.HEAPU8[ans] | (Solver.HEAPU8[ans + 1] << 8) | (Solver.HEAPU8[ans + 2] << 16) | (Solver.HEAPU8[ans + 3] << 24);
 	var resultStr = new TextDecoder().decode(Solver.HEAPU8.slice(ans + 4, ans + 4 + length));
 	var result = JSON.parse(resultStr.substring(0, resultStr.length));
-	console.log(result);
 	return result["description"];
 }
