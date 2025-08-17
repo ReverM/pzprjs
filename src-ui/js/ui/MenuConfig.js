@@ -117,6 +117,7 @@
 					idname = "nuriuzu_connect";
 					break;
 				case "pentopia":
+				case "distopia":
 					idname = "pentopia_transparent";
 					break;
 				case "koburin":
@@ -136,6 +137,9 @@
 					break;
 				case "bdwalk":
 					idname = "bdwalk_height";
+					break;
+				case "balloon":
+					idname = "balloon_adjacent";
 					break;
 				case "aqre":
 					idname = "aqre_borders";
@@ -162,6 +166,7 @@
 				case "waterwalk":
 				case "firewalk":
 				case "forestwalk":
+				case "wataridori":
 					idname = "loop_full";
 					break;
 			}
