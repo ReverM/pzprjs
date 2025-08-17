@@ -703,10 +703,10 @@
 			for (var i = 0; i < clist.length; i++) {
 				var num = clist[i].getNum();
 				if (num === -1) {
-				} else if (isNaN(nums[num])) {
+				} else if (isNaN(nums[num]) && num !== -2) {
 					numkind++;
 					nums[num] = 1;
-					if (filled === -1 || num !== -2) {
+					if (filled === -1) {
 						filled = num;
 					}
 				} else {
