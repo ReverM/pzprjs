@@ -383,8 +383,9 @@
 				for (var i = 0; i < clist.length; i++) {
 					var cell = clist[i];
 					g.vid = "c_star_" + cell.id;
-					if (cell.qans === 1) {
-						g.fillStyle = !cell.trial ? this.qanscolor : this.trialcolor;
+					if (cell.qans === 1 || cell.qansBySolver === 1) {
+						g.fillStyle = !cell.trial ? this.getColorSolverAware(cell.qans === 1, cell.qansBySolver === 1, this.qanscolor)
+					: this.trialcolor;;
 						this.fillStar(
 							g,
 							cell.bx * this.bw,

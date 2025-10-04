@@ -144,7 +144,7 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForCells: function() {
 			for (var a = !1, b = 0; b < this.cell.length; ++b) {
 				var c = this.cell[b];
-				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
+				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
 			}
 			return a
 		},
@@ -158,6 +158,23 @@ pzpr.classmgr.makeCommon({
 					}
 					b.push(d);
 				}
+				var x1 = 9999, // To use for bosanowa
+					y1 = 9999,
+					bd = this.board;
+				if ("bosanowa" === this.pid) {
+					for (var c = 0; c < bd.cell.length; c++) {
+						var cell = bd.cell[c];
+						if (cell.isEmpty()) {
+							continue;
+						}
+						if (x1 > cell.bx) {
+							x1 = cell.bx;
+						}
+						if (y1 > cell.by) {
+							y1 = cell.by;
+						}
+					}
+				}
 				var solution = result.data;
 				for (var g = 0; g < solution.length; ++g) {
 					var h = solution[g];
@@ -170,8 +187,9 @@ pzpr.classmgr.makeCommon({
 				}
 				for (var g = 0; g < this.cell.length; ++g) {
 					var i = this.cell[g];
+
 					for (j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k) {
-						if ("block" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
+						if ("block" === j[k] || "filledCircle" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid && "yinyang" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
 							i.qansBySolver = 1;
 						}
 						else if ("triangle" === j[k] || "firewalkCellUr" === j[k] || "firewalkCellDl" === j[k] || "firewalkCellUrDl" === j[k]) {
@@ -180,7 +198,7 @@ pzpr.classmgr.makeCommon({
 						else if ("square" === j[k] || "firewalkCellUnknown" === j[k]) {
 							i.qansBySolver = 3;
 						}
-						else if ("dot" === j[k] || ("circle" === j[k] && "doppelblock" === this.pid)) {
+						else if ("dot" === j[k] || ("circle" === j[k] && ("doppelblock" === this.pid || "yinyang" === this.pid)) ) {
 							i.qsubBySolver = 1;
 						}
 						else if ("aboloUpperLeft" === j[k]) {
@@ -215,7 +233,12 @@ pzpr.classmgr.makeCommon({
 						}
 						else if (j[k].kind) {
 							if ("text" === j[k].kind) {
-								i.qnumBySolver = parseInt(j[k].data);
+								if ("bosanowa" === this.pid) {
+									bd.getc(i.bx - 1 + x1,i.by - 1 + y1).qnumBySolver = parseInt(j[k].data);
+								}
+								else {
+									i.qnumBySolver = parseInt(j[k].data);
+								}
 							}
 							else if ("sudokuCandidateSet" === j[k].kind) {
 								i.qcandBySolver = [];
@@ -291,7 +314,7 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForCrosses: function () {
 			for (var a = !1, b = 0; b < this.cross.length; ++b) {
 				var c = this.cross[b];
-				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), [] !== c.destBySolver && (c.destBySolver = [], a = !0)
+				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
 			}
 			return a
 		},

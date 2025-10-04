@@ -128,6 +128,7 @@
 
 			this.drawBorders();
 			this.drawBorderQsubs();
+			this.drawShadedCells();
 
 			this.drawCircles();
 
