@@ -219,7 +219,7 @@
 			if (pzpr.env.node) {
 				url = "http://pzv.jp/p.html";
 			} else {
-				url = "https://puzz.link/p";
+				url = "https://pzprxs.vercel.app/p";
 			}
 			switch (this.type) {
 				case URL_PZPRV3:

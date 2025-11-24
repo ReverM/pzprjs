@@ -275,6 +275,7 @@ pzpr.classmgr.makeCommon({
 
 
 		updateSolverAnswerForCells: function(result) {
+			console.log(result);
 			if (this.clearSolverAnswerForCells(), "string" !== typeof result) {
 				for (var b = [], c = 0; c < this.rows; ++c) {
 					for (var d = [], e = 0; e < this.cols; ++e) {
@@ -306,7 +307,7 @@ pzpr.classmgr.makeCommon({
 						b[(h.y - 3) / 2][(h.x - 3) / 2].push(h.item);
 					}
 					else {
-						("statuepark" === this.pid || "green" === h.color) && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
+						("statuepark" === this.pid || "circlesquare" === this.pid || "green" === h.color) && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
 					}
 				}
 				for (var g = 0; g < this.cell.length; ++g) {
