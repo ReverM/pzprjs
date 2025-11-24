@@ -218,6 +218,10 @@ ui.toolarea = {
 		var trial = ui.puzzle.board.trialstage > 0;
 		var net = ui.network.mode !== "";
 
+		var isRunning = ui.puzzle.board.isRunning;
+		getEL("solver.status").textContent = isRunning ? ui.i18n("solver.status.running") : ui.i18n("solver.status.running");
+		getEL("solver.status").style.visibility = isRunning ? "visible" : "hidden";
+
 		if (idname === "operation") {
 			var opemgr = ui.puzzle.opemgr;
 			getEL("btnundo").disabled = !opemgr.enableUndo;

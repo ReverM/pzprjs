@@ -12,6 +12,11 @@ pzpr.classmgr.makeCommon({
 		initialize: function() {
 			var classes = this.klass;
 
+			this.solverWorker = null;
+			this.solverWorkerAlt = null;
+			this.isRunning = false;
+			this.isAlt = false; // Boolean used to check which of the two workers is to be considered the main one
+
 			// 盤面の範囲
 			this.minbx = 0;
 			this.minby = 0;
@@ -125,19 +130,138 @@ pzpr.classmgr.makeCommon({
 				if (needUpdateField) {
 					this.puzzle.painter.paintAll();
 				}
+				if (window.Worker) {
+					this.isAlt = false;
+					this.isRunning = false;
+					ui.setdisplay();
+					if (!!this.solverWorker) {
+						this.solverWorker.terminate();
+					}
+					if (!!this.solverWorkerAlt) {
+						this.solverWorkerAlt.terminate();
+					}
+					this.solverWorkerAlt = null;
+					this.solverWorker = null;
+				}
 				return;
-			}
-			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
-			var result = window.solveProblem(url);
+				}
 
-			if (updateCells) {
-				this.updateSolverAnswerForCells(result);
+				var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
+				if (this.puzzle.getConfig("solver_erase")) {
+					if (updateCells) {
+						this.clearSolverAnswerForCells();
+					}
+					this.clearSolverAnswerForBorders()
+					this.puzzle.painter.paintAll();
+				}
+				
+				if (window.Worker) {
+					if (!this.solverWorker) {
+						this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
+					}
+					if (!this.solverWorkerAlt) {
+						this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
+					}
+					
+					var bd = this.board;
+				
+					if (!this.isRunning) {
+						this.isRunning = true;
+						ui.setdisplay();
+						if (this.isAlt) {
+							this.solverWorkerAlt.postMessage(url);
+						}
+						else {
+							this.solverWorker.postMessage(url);
+						}
+					}
+					else {
+						if (this.isAlt) {
+							if (!!this.solverWorker) {
+								this.solverWorker.terminate();
+							}
+							this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
+							this.solverWorker.postMessage(url);	
+						}
+						else {
+							if (!!this.solverWorkerAlt) {
+								this.solverWorkerAlt.terminate();
+							}
+							this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
+							this.solverWorkerAlt.postMessage(url);	
+						}
+					}
+					
+					if (!!this.solverWorker) {
+						this.solverWorker.onmessage = function(message) {
+							var result = message.data;
+							var solverUrl = result[0];
+							var solution = result[1];
+
+							if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+								this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+							}
+							
+							else {
+								bd.isRunning = false;
+								if (updateCells) {
+									bd.updateSolverAnswerForCells(solution);
+								}
+
+								bd.updateSolverAnswerForBorders(solution);
+								bd.updateSolverAnswerForCrosses(solution);
+
+								bd.isAlt = bd.isAlt ? !bd.isAlt: bd.isAlt;
+								ui.setdisplay();
+								bd.puzzle.painter.paintAll();
+							}
+
+						}
+					}
+
+				if (!!this.solverWorkerAlt) {
+					this.solverWorkerAlt.onmessage = function(message) {
+						var result = message.data;
+						var solverUrl = result[0];
+						var solution = result[1];
+
+						if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+							this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+						}
+						
+						else {
+							
+							bd.isRunning = false;
+							if (updateCells) {
+								bd.updateSolverAnswerForCells(solution);
+							}
+
+							bd.updateSolverAnswerForBorders(solution);
+							bd.updateSolverAnswerForCrosses(solution);
+
+							bd.isAlt = !bd.isAlt ? !bd.isAlt: bd.isAlt;
+							ui.setdisplay();
+							bd.puzzle.painter.paintAll();
+						}
+
+					}
+				}
 			}
-			if (updateBorders) {
+
+			else {
+				this.isRunning = true;
+				ui.setdisplay();
+				var result = window.solveProblemAlt(url);
+				if (updateCells) {
+					this.updateSolverAnswerForCells(result);
+				}
+
 				this.updateSolverAnswerForBorders(result);
+				this.updateSolverAnswerForCrosses(result);
+				this.isRunning = false;
+				ui.setdisplay();
+				this.puzzle.painter.paintAll();
 			}
-			this.updateSolverAnswerForCrosses(result);
-			this.puzzle.painter.paintAll();
 		},
 
 

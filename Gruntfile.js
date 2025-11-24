@@ -60,7 +60,8 @@ module.exports = function(grunt){
           { expand: true, cwd: 'src-ui/css', src: ['*.css'], dest: 'dist/css' },
           { expand: true, cwd: 'src-ui/img', src: ['*.png'], dest: 'dist/img' },
 		  { expand: true, cwd: 'src-ui', src: ['*'], dest: 'dist' },
-		  { expand: true, cwd: 'src-ui/js', src: ['solver.js'], dest: 'dist/js' }
+		  { expand: true, cwd: 'src-ui/js', src: ['solver.js'], dest: 'dist/js' },
+      { expand: true, cwd: 'src-ui/js', src: ['solverNoWorker.js'], dest: 'dist/js' }
         ]
       }
     },
@@ -84,6 +85,14 @@ module.exports = function(grunt){
 			},
 			files: [
 				{ src: require('./src/solver.js').files, dest: 'dist/js/solver.concat.js' }
+			]
+		},
+    solverNoWorker: {
+			options: {
+				sourceMap: !PRODUCTION
+			},
+			files: [
+				{ src: require('./src/solverNoThread.js').files, dest: 'dist/js/solverNoWorker.concat.js' }
 			]
 		},
       ui: {
@@ -137,6 +146,16 @@ module.exports = function(grunt){
 				{ src: 'dist/js/solver.concat.js', dest: 'dist/js/solver.js' }
 			]
 		},
+    solverNoWorker: {
+			options: (PRODUCTION ? {} : {
+				sourceMap: 'dist/js/solverNoWorker.js.map',
+				sourceMapIn: 'dist/js/solverNoWorker.concat.js.map',
+				sourceMapIncludeSources: true
+			}),
+			files: [
+				{ src: 'dist/js/solverNoWorker.concat.js', dest: 'dist/js/solverNoWorker.js' }
+			]
+		},
       variety:{
         options: (PRODUCTION ? {} : {
           sourceMap : function(filename){ return filename+'.map';}
@@ -169,9 +188,10 @@ module.exports = function(grunt){
   
   grunt.registerTask('default', ['build']);
   grunt.registerTask('release', ['build']);
-  grunt.registerTask('build',        ['build:pzpr', 'build:solver', 'build:variety', 'build:samples', 'build:ui']);
+  grunt.registerTask('build',        ['build:pzpr', 'build:solver', 'build:solverNoWorker', 'build:variety', 'build:samples', 'build:ui']);
   grunt.registerTask('build:pzpr', ['concat:pzpr', 'uglify:pzpr']);
-  grunt.registerTask('build:solver', ['concat:solver', 'uglify:solver'])
+  grunt.registerTask('build:solver', ['concat:solver', 'uglify:solver']);
+  grunt.registerTask('build:solverNoWorker', ['concat:solverNoWorker', 'uglify:solverNoWorker']);
   grunt.registerTask('build:ui',     ['copy:ui', 'concat:ui', 'uglify:ui']);
   grunt.registerTask('build:variety',['uglify:variety']);
   grunt.registerTask('build:samples',['concat:samples', 'uglify:samples']);

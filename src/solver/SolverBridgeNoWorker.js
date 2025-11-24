@@ -18,4 +18,3 @@ window.solveProblemAlt = function (url) {
 	var result = JSON.parse(resultStr.substring(0, resultStr.length));
 	return result["description"];
 }
-

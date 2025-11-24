@@ -171,6 +171,7 @@
 			this.add("uramashu", false, { volatile: true }); /* 裏ましゅにする */
 			this.add("autosolver", false, { volatile: true });
 			this.add("run_autosolver", false, { volatile: true });
+			this.add("solver_erase", true, { volatile: false });
 			this.add("open_solver", false, { volatile: true })
 		},
 		add: function(name, defvalue, extoption) {
