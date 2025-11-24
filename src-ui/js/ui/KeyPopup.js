@@ -231,10 +231,15 @@ ui.keypopup = {
 		wataridori: [10, 0],
 		kurarin: [133, 0],
 		narrow: [134, 0],
+		blindrush: [10, 0],
 		isowatari: [10, 0],
 		uturns: [133, 0],
 		distopia: [10, 0],
-		numcity: [10, 10]
+		numcity: [10, 10],
+		cityspace: [10, 0],
+		diamond: [4, 0],
+		morningwalk: [10, 0],
+		energywalk: [10, 0]
 	},
 
 	//---------------------------------------------------------------------------
@@ -484,29 +489,8 @@ ui.keypopup = {
 				text: "■",
 				color: "rgb(204,204,204)"
 			};
-		} else if (
-			pid === "kurotto" ||
-			pid === "bonsan" ||
-			pid === "satogaeri" ||
-			pid === "heyabon" ||
-			pid === "yosenabe" ||
-			pid === "herugolf" ||
-			pid === "kazunori" ||
-			pid === "nurimisaki" ||
-			pid === "amibo" ||
-			pid === "firefly" ||
-			pid === "shikaku" ||
-			pid === "aho" ||
-			pid === "bosanowa" ||
-			pid === "portal" ||
-			pid === "minarism" ||
-			pid === "mintonette" ||
-			pid === "onsen" ||
-			pid === "wataridori"
-		) {
-			cap = "○";
-		} else if (!ui.puzzle.painter.hideHatena) {
-			cap = "?";
+		} else {
+			cap = ui.puzzle.painter.hideHatena ? "○" : "?";
 		}
 		if (cap !== null) {
 			itemlist.push(["-", cap]);
@@ -521,6 +505,8 @@ ui.keypopup = {
 			pid === "waterwalk" ||
 			pid === "firewalk" ||
 			pid === "forestwalk" ||
+			pid === "morningwalk" ||
+			pid === "energywalk" ||
 			pid === "dbchoco" ||
 			pid === "balloon"
 		) {
@@ -535,6 +521,10 @@ ui.keypopup = {
 							? "rgb(255,192,192)"
 							: pid === "forestwalk"
 							? "rgb(195,253,186)"
+							: pid === "morningwalk"
+							? "rgb(212,180,212)"
+							: pid === "energywalk"
+							? "rgb(255,255,163)"
 							: "rgb(192,224,255)"
 				}
 			]);

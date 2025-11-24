@@ -4,7 +4,7 @@
 	} else {
 		pzpr.classmgr.makeCustom(pidlist, classbase);
 	}
-})(["kurarin"], {
+})(["kurarin", "tetrochaink", "sansaroad"], {
 	//---------------------------------------------------------
 	// マウス入力系
 	MouseEvent: {
@@ -73,15 +73,16 @@
 			var dot = pos.getDot();
 			if (dot !== null) {
 				var qn = dot.getDot();
+				var max = dot.piece.getmaxnum();
 				if (this.btn === "left") {
-					if (qn === 3) {
+					if (qn === max) {
 						dot.setDot(0);
 					} else {
 						dot.setDot(qn + 1);
 					}
 				} else if (this.btn === "right") {
 					if (qn === 0) {
-						dot.setDot(3);
+						dot.setDot(max);
 					} else {
 						dot.setDot(qn - 1);
 					}
@@ -93,6 +94,39 @@
 			if (this.mousestart) {
 				this.inputdot();
 			}
+		}
+	},
+	"MouseEvent@tetrochaink": {
+		inputModes: {
+			edit: ["info-blk"],
+			play: ["shade", "unshade", "info-blk"]
+		},
+		mouseinputAutoPlay: function() {
+			this.inputShade();
+		},
+		dispInfoBlk: function() {
+			var cell = this.getcell();
+			this.mousereset();
+			if (cell.isnull || !cell.isShade()) {
+				return;
+			}
+			cell.blk8.clist.setinfo(1);
+			this.board.hasinfo = true;
+			this.puzzle.redraw();
+		}
+	},
+	"MouseEvent@sansaroad": {
+		inputModes: {
+			edit: ["mark-triangle"],
+			play: ["shade", "unshade"]
+		},
+		mouseinput_other: function() {
+			if (this.inputMode === "mark-triangle") {
+				this.inputFixedNumber(1);
+			}
+		},
+		mouseinputAutoPlay: function() {
+			this.inputShade();
 		}
 	},
 
@@ -111,9 +145,9 @@
 			var dot = this.cursor.getDot();
 			if (dot !== null) {
 				var num = +ca;
-				if (num >= 0 && num <= 3) {
+				if (num >= 0 && num <= dot.piece.getmaxnum()) {
 					dot.setDot(num);
-				} else if (ca === " " || ca === "-") {
+				} else if (ca === " " || ca === "-" || ca === "BS") {
 					dot.setDot(0);
 				}
 				dot.draw();
@@ -140,6 +174,19 @@
 		// not to be confused with the Dot class
 		isDot: function() {
 			return this.lcnt === 0 && this.qsub === 1;
+		}
+	},
+	"Cell@sansaroad": {
+		maxnum: 1,
+		allowShade: function() {
+			return this.qnum <= 0;
+		},
+		posthook: {
+			qnum: function(val) {
+				if (val >= 0) {
+					this.setQans(0);
+				}
+			}
 		}
 	},
 	Cross: {
@@ -177,16 +224,22 @@
 		}
 	},
 
-	LineGraph: {
+	"LineGraph@kurarin": {
+		enabled: true
+	},
+	"AreaShadeGraph@tetrochaink": {
+		enabled: true
+	},
+	"AreaShade8Graph@tetrochaink": {
+		enabled: true
+	},
+	"AreaUnshadeGraph@sansaroad": {
 		enabled: true
 	},
 
 	//---------------------------------------------------------
 	// 画像表示系
 	Graphic: {
-		gridcolor_type: "LIGHT",
-		irowake: true,
-
 		shadecolor: "#444444",
 		enablebcolor: true,
 
@@ -194,16 +247,21 @@
 			this.drawBGCells();
 
 			this.drawShadedCells();
-			this.drawDotCells();
+			if (this.pid === "kurarin") {
+				this.drawDotCells();
+			} else if (this.pid === "sansaroad") {
+				this.drawQuesMarks();
+			}
 			this.drawGrid();
 
 			this.drawDots();
 
 			this.drawChassis();
 
-			this.drawLines();
-
-			this.drawPekes();
+			if (this.pid === "kurarin") {
+				this.drawLines();
+				this.drawPekes();
+			}
 
 			this.drawCursor(false, this.puzzle.editmode);
 		},
@@ -213,6 +271,10 @@
 		},
 
 		getDotFillColor: function(dot) {
+			if (this.pid === "sansaroad" && dot.piece.group === "cell") {
+				return null;
+			}
+
 			switch (dot.getDot()) {
 				case 1:
 					return this.quescolor;
@@ -225,10 +287,58 @@
 			}
 		},
 		getDotOutlineColor: function(dot) {
+			if (this.pid === "sansaroad" && dot.piece.group === "cell") {
+				return null;
+			}
+
 			if (dot.getDot() >= 1) {
 				return dot.iserror() ? this.errcolor1 : this.quescolor;
 			}
 			return null;
+		}
+	},
+	"Graphic@kurarin": {
+		gridcolor_type: "LIGHT",
+		irowake: true
+	},
+	"Graphic@tetrochaink": {
+		bgcellcolor_func: "qsub1"
+	},
+	"Graphic@sansaroad": {
+		bgcellcolor_func: "qsub1",
+		drawQuesMarks: function() {
+			var g = this.vinc("cell_mark", "auto", true);
+
+			var rsize = this.cw * 0.3,
+				tsize = this.cw * 0.26;
+			g.lineWidth = 2;
+
+			var clist = this.range.cells;
+			for (var i = 0; i < clist.length; i++) {
+				var cell = clist[i];
+				var px = cell.bx * this.bw,
+					py = cell.by * this.bh;
+				g.strokeStyle = this.getQuesNumberColor(cell);
+
+				g.vid = "c_mk_" + cell.id;
+				if (cell.qnum === 1) {
+					g.beginPath();
+					g.setOffsetLinePath(
+						px,
+						py,
+						0,
+						tsize,
+						-rsize,
+						-tsize,
+						rsize,
+						-tsize,
+						true
+					);
+					g.stroke();
+				} else {
+					g.vhide();
+				}
+			}
 		}
 	},
 
@@ -269,12 +379,16 @@
 		decodeData: function() {
 			this.decodeDotFile();
 			this.decodeCellAns();
-			this.decodeBorderLine();
+			if (this.pid === "kurarin") {
+				this.decodeBorderLine();
+			}
 		},
 		encodeData: function() {
 			this.encodeDotFile();
 			this.encodeCellAns();
-			this.encodeBorderLine();
+			if (this.pid === "kurarin") {
+				this.encodeBorderLine();
+			}
 		}
 	},
 
@@ -313,6 +427,10 @@
 					continue;
 				}
 
+				if (dot.piece.group === "cell" && this.pid === "sansaroad") {
+					continue;
+				}
+
 				var cells = dot.piece.dotCells();
 				var shaded = cells.filter(function(cell) {
 					return cell.isShade();
@@ -340,6 +458,131 @@
 			this.checkAllCell(function(cell) {
 				return cell.lcnt === 0 && !cell.isShade();
 			}, "ceEmpty");
+		}
+	},
+	"AnsCheck@tetrochaink": {
+		checklist: [
+			"checkOverShadeCell",
+			"checkAdjacentShapes",
+
+			"checkShadeWhite",
+			"checkUnderShadeCell",
+			"checkShadeBlack",
+			"checkShadeGray",
+
+			"checkConnect8Shade",
+			"doneShadingDecided"
+		],
+
+		checkOverShadeCell: function() {
+			this.checkAllArea(
+				this.board.sblkmgr,
+				function(w, h, a, n) {
+					return a <= 4;
+				},
+				"csGt4"
+			);
+		},
+		checkUnderShadeCell: function() {
+			this.checkAllArea(
+				this.board.sblkmgr,
+				function(w, h, a, n) {
+					return a >= 4;
+				},
+				"csLt4"
+			);
+		},
+		checkConnect8Shade: function() {
+			this.checkOneArea(this.board.sblk8mgr, "csDivide");
+		},
+
+		checkAdjacentShapes: function() {
+			var bd = this.board;
+			for (var c = 0; c < bd.cell.length; c++) {
+				var cell = bd.cell[c];
+				if (cell.bx === bd.maxbx - 1 || cell.by === bd.maxby - 1) {
+					continue;
+				}
+
+				var i,
+					adc = cell.adjacent;
+				var cells = [
+					[cell, adc.right.adjacent.bottom],
+					[adc.right, adc.bottom]
+				];
+				for (i = 0; i < 2; i++) {
+					if (cells[i][0].isShade() && cells[i][1].isShade()) {
+						break;
+					}
+				}
+				if (i === 2) {
+					continue;
+				}
+
+				var block1 = cells[i][0].sblk,
+					block2 = cells[i][1].sblk;
+				if (
+					block1 === block2 ||
+					block1.clist.length !== 4 ||
+					this.isDifferentShapeBlock(block1, block2)
+				) {
+					continue;
+				}
+
+				this.failcode.add("bsSameShape");
+				if (this.checkOnly) {
+					break;
+				}
+				block1.clist.seterr(1);
+				block2.clist.seterr(1);
+			}
+		}
+	},
+	"AnsCheck@sansaroad": {
+		checklist: [
+			"checkConnectUnshade",
+			"checkTriangleUnder",
+			"checkEmptyUnder",
+			"checkShadeWhite",
+			"checkShadeBlack",
+			"checkShadeGray",
+			"checkTriangleOver",
+			"checkEmptyOver",
+			"check2x2UnshadeCell++",
+			"doneShadingDecided"
+		],
+		checkTriangleUnder: function() {
+			this.checkAdjacency(1, -1, "cuLt3");
+		},
+		checkEmptyUnder: function() {
+			this.checkAdjacency(0, -1, "cuLt2");
+		},
+		checkTriangleOver: function() {
+			this.checkAdjacency(1, +1, "cuGt3");
+		},
+		checkEmptyOver: function() {
+			this.checkAdjacency(0, +1, "cuGt2");
+		},
+
+		checkAdjacency: function(num, flag, code) {
+			for (var c = 0; c < this.board.cell.length; c++) {
+				var cell = this.board.cell[c];
+				if (cell.isShade() || cell.qnum !== num) {
+					continue;
+				}
+				var count = cell.countDir4Cell(function(cell2) {
+					return cell2.isUnshade();
+				});
+				if ((flag < 0 && count >= 2 + num) || (flag > 0 && count <= 2 + num)) {
+					continue;
+				}
+
+				this.failcode.add(code);
+				if (this.checkOnly) {
+					break;
+				}
+				cell.seterr(1);
+			}
 		}
 	},
 	FailCode: {
