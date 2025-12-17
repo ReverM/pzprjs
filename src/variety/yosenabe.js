@@ -834,14 +834,19 @@
 			var bd = this.board;
 			this.genericEncodeNumber16(bd.cell.length, function(c) {
 				var cell = bd.cell[c];
-				if (cell.qnum2 === -1) {
-					return cell.qnum;
+				switch (cell.qnum2) {
+					// This maps a pair of number + a direction to a base 5 number,
+					// where the unit is the direction and the rest is the value
+					case -4: // Infinity symbol - mapped to 0
+						return 0 + cell.qdir;
+					case -2: // Question mark - mapped to 1
+						return 5 + cell.qdir;
+					case -1: // Empty - we return qnum to check if there's a block
+						return cell.qnum;
+					default:
+						// Number - mapped to itself + 2 (since 0 and 1 are taken above)
+						return (cell.qnum + 2) * 5 + cell.qdir;
 				}
-
-				var val =
-					(cell.qnum2 === -4 ? 0 : cell.qnum2 === -2 ? 1 : cell.qnum2 + 2) * 5 +
-					cell.qdir;
-				return val;
 			});
 			this.encodeBinary("qnum2", -5, true);
 		}
