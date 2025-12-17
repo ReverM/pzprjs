@@ -304,7 +304,7 @@ pzpr.classmgr.makeCommon({
 				for (var g = 0; g < solution.length; ++g) {
 					var h = solution[g];
 					if (
-						("kakuro" === this.pid || "doppelblock" === this.pid) &&
+						("kakuro" === this.pid || "doppelblock" === this.pid || "aquarium" === this.pid ) &&
 						"green" === h.color &&
 						h.x % 2 === 1 &&
 						h.y % 2 === 1
