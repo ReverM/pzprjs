@@ -617,7 +617,11 @@
 				return border.error
 					? "red"
 					: !border.trial
-					? this.getColorSolverAware(border.isBorder(), border.isBorderBySolver(), this.qanscolor)
+					? this.getColorSolverAware(
+							border.isBorder(),
+							border.isBorderBySolver(),
+							this.qanscolor
+					  )
 					: this.trialcolor;
 			}
 			return null;
@@ -633,7 +637,16 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				var dir = cell.getPencilDir();
-				var color = (1 === this.isSameSymbol(cell.getPencilDir(), [cell.UP, cell.DN, cell.LT, cell.RT], this.qansBySolver, [8, 6, 9, 7])) ? this.solverqanscolor : this.getCellArrowColor(cell);
+				var color =
+					1 ===
+					this.isSameSymbol(
+						cell.getPencilDir(),
+						[cell.UP, cell.DN, cell.LT, cell.RT],
+						this.qansBySolver,
+						[8, 6, 9, 7]
+					)
+						? this.solverqanscolor
+						: this.getCellArrowColor(cell);
 
 				g.lineWidth = (this.lw + this.addlw) / 2;
 				if (!!color) {
@@ -694,7 +707,7 @@
 			}
 			this.drawCellArrowsForSolver();
 		},
-		drawCellArrowsForSolver: function () {
+		drawCellArrowsForSolver: function() {
 			var g = this.vinc("cell_arrow_solver", "crispEdges");
 
 			var outer = this.cw * 0.5;
@@ -704,7 +717,16 @@
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i];
 				var dir = cell.qansBySolver;
-				var color = (1 === this.isSameSymbol(cell.getPencilDir(), [cell.UP, cell.DN, cell.LT, cell.RT], dir, [8, 6, 9, 7])) ? this.solverqanscolor : this.solvercolor;
+				var color =
+					1 ===
+					this.isSameSymbol(
+						cell.getPencilDir(),
+						[cell.UP, cell.DN, cell.LT, cell.RT],
+						dir,
+						[8, 6, 9, 7]
+					)
+						? this.solverqanscolor
+						: this.solvercolor;
 
 				g.lineWidth = (this.lw + this.addlw) / 2;
 				if (!!color) {

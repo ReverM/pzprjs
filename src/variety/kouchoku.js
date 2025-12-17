@@ -1196,26 +1196,28 @@
 			this.drawSolverSegments();
 		},
 
-		drawSolverSegments: function () {
+		drawSolverSegments: function() {
 			var g = this.vinc("segment_solver", "auto", true);
 			var clist = this.range.crosses;
 			g.strokeStyle = this.solvercolor;
 			g.lineWidth = this.lw;
 			for (var i = 0; i < clist.length; i++) {
-				var celli = clist[i]; 
+				var celli = clist[i];
 				for (var j = 0; j < clist.length; j++) {
 					var cellj = clist[j];
 					g.vid = ["seg_solver", i, j].join("_");
-					if (celli.qansBySolver === 1 && cellj.destBySolver.includes(celli.id)) {
-						var px1 = (celli.bx ) * this.bw,
-							px2 = (cellj.bx ) * this.bw,
-							py1 = (celli.by ) * this.bh,
-							py2 = (cellj.by ) * this.bh;
+					if (
+						celli.qansBySolver === 1 &&
+						cellj.destBySolver.includes(celli.id)
+					) {
+						var px1 = celli.bx * this.bw,
+							px2 = cellj.bx * this.bw,
+							py1 = celli.by * this.bh,
+							py2 = cellj.by * this.bh;
 						g.strokeLine(px1, py1, px2, py2);
+					} else {
+						g.vhide();
 					}
-
-					
-					else { g.vhide(); }
 				}
 			}
 		},

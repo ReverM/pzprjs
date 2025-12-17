@@ -172,7 +172,7 @@
 			this.add("autosolver", false, { volatile: true });
 			this.add("run_autosolver", false, { volatile: true });
 			this.add("solver_erase", true, { volatile: false });
-			this.add("open_solver", false, { volatile: true })
+			this.add("open_solver", false, { volatile: true });
 		},
 		add: function(name, defvalue, extoption) {
 			if (!extoption) {
@@ -549,9 +549,9 @@
 						].indexOf(pid) >= 0;
 					break;
 				case "autosolver":
-                    case "run_autosolver":
-						exec = true;
-						/*[
+				case "run_autosolver":
+					exec = true;
+					/*[
 							"nurimisaki",
 							"nurikabe",
 							"lits",
@@ -580,10 +580,10 @@
 							"chainedb",
 							"nothree"
 						].indexOf(pid) >= 0;*/
-                        break;
-                    case "open_solver":
-                        exec = pid === "numlin";
-                        break;
+					break;
+				case "open_solver":
+					exec = pid === "numlin";
+					break;
 				default:
 					exec = !!this.list[name];
 			}

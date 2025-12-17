@@ -435,7 +435,13 @@
 
 					g.vid = "c_dot_" + cell.id;
 					if (cell.qsub === 1 || cell.qsubBySolver === 1) {
-						g.fillStyle = !cell.trial ? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver, this.bcolor) : this.trialcolor;
+						g.fillStyle = !cell.trial
+							? this.getColorSolverAware(
+									1 === cell.qsub,
+									1 === cell.qsubBySolver,
+									this.bcolor
+							  )
+							: this.trialcolor;
 						g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 					} else {
 						g.vhide();
@@ -479,7 +485,11 @@
 				} else if (this.puzzle.execConfig("irowakeblk")) {
 					return cell.stone.color;
 				}
-				return this.getColorSolverAware(1 === cell.qans, 1 === cell.qansBySolver, this.shadecolor);
+				return this.getColorSolverAware(
+					1 === cell.qans,
+					1 === cell.qansBySolver,
+					this.shadecolor
+				);
 			},
 			getBorderColor: function(border) {
 				if (this.board.falling) {

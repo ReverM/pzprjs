@@ -430,15 +430,28 @@
 				}
 
 				var dists = [border.sidecell[0].distance, border.sidecell[1].distance];
-				var isvalidline = border.isLineBySolver() ||
-					dists[0] !== null &&
-					dists[0] >= 0 &&
-					dists[1] !== null &&
-					dists[1] >= 0;
+				var isvalidline =
+					border.isLineBySolver() ||
+					(dists[0] !== null &&
+						dists[0] >= 0 &&
+						dists[1] !== null &&
+						dists[1] >= 0);
 				if (this.puzzle.execConfig("dispmove")) {
-					return isvalidline ? this.getColorSolverAware(border.isLine(), border.isLineBySolver(), this.movelinecolor) : this.errlinecolor;
+					return isvalidline
+						? this.getColorSolverAware(
+								border.isLine(),
+								border.isLineBySolver(),
+								this.movelinecolor
+						  )
+						: this.errlinecolor;
 				} else {
-					return isvalidline ? this.getColorSolverAware(border.isLine(), border.isLineBySolver(),this.linecolor) : this.invalidlinecolor;
+					return isvalidline
+						? this.getColorSolverAware(
+								border.isLine(),
+								border.isLineBySolver(),
+								this.linecolor
+						  )
+						: this.invalidlinecolor;
 				}
 			}
 			return null;

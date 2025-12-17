@@ -288,7 +288,11 @@
 						cell.error === 4
 							? this.errcolor1
 							: !cell.trial
-							? this.getColorSolverAware(cell.isAkari(), cell.qansBySolver === 1, lampcolor)
+							? this.getColorSolverAware(
+									cell.isAkari(),
+									cell.qansBySolver === 1,
+									lampcolor
+							  )
 							: this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, rsize);
 				} else {

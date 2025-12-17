@@ -7,7 +7,7 @@
 
 pzpr.classmgr.makeCommon({
 	//---------------------------------------------------------
-	
+
 	Board: {
 		initialize: function() {
 			var classes = this.klass;
@@ -104,7 +104,6 @@ pzpr.classmgr.makeCommon({
 			return 1;
 		},
 
-
 		autoSolve: function(force) {
 			this.answers = null;
 			var updateCells = !(this.pid === "kouchoku");
@@ -144,80 +143,82 @@ pzpr.classmgr.makeCommon({
 					this.solverWorker = null;
 				}
 				return;
+			}
+
+			var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
+			if (this.puzzle.getConfig("solver_erase")) {
+				if (updateCells) {
+					this.clearSolverAnswerForCells();
+				}
+				this.clearSolverAnswerForBorders();
+				this.puzzle.painter.paintAll();
+			}
+
+			if (window.Worker) {
+				if (!this.solverWorker) {
+					this.solverWorker = new Worker("js/SolverWorker.js", {
+						type: "module"
+					});
+				}
+				if (!this.solverWorkerAlt) {
+					this.solverWorkerAlt = new Worker("js/SolverWorker.js", {
+						type: "module"
+					});
 				}
 
-				var url = ui.puzzle.getURL(pzpr.parser.URL_PZPRV3);
-				if (this.puzzle.getConfig("solver_erase")) {
-					if (updateCells) {
-						this.clearSolverAnswerForCells();
+				var bd = this.board;
+
+				if (!this.isRunning) {
+					this.isRunning = true;
+					ui.setdisplay();
+					if (this.isAlt) {
+						this.solverWorkerAlt.postMessage(url);
+					} else {
+						this.solverWorker.postMessage(url);
 					}
-					this.clearSolverAnswerForBorders()
-					this.puzzle.painter.paintAll();
+				} else {
+					if (this.isAlt) {
+						if (!!this.solverWorker) {
+							this.solverWorker.terminate();
+						}
+						this.solverWorker = new Worker("js/SolverWorker.js", {
+							type: "module"
+						});
+						this.solverWorker.postMessage(url);
+					} else {
+						if (!!this.solverWorkerAlt) {
+							this.solverWorkerAlt.terminate();
+						}
+						this.solverWorkerAlt = new Worker("js/SolverWorker.js", {
+							type: "module"
+						});
+						this.solverWorkerAlt.postMessage(url);
+					}
 				}
-				
-				if (window.Worker) {
-					if (!this.solverWorker) {
-						this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
-					}
-					if (!this.solverWorkerAlt) {
-						this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
-					}
-					
-					var bd = this.board;
-				
-					if (!this.isRunning) {
-						this.isRunning = true;
-						ui.setdisplay();
-						if (this.isAlt) {
-							this.solverWorkerAlt.postMessage(url);
-						}
-						else {
-							this.solverWorker.postMessage(url);
-						}
-					}
-					else {
-						if (this.isAlt) {
-							if (!!this.solverWorker) {
-								this.solverWorker.terminate();
-							}
-							this.solverWorker = new Worker("js/SolverWorker.js", { type: "module"});
-							this.solverWorker.postMessage(url);	
-						}
-						else {
-							if (!!this.solverWorkerAlt) {
-								this.solverWorkerAlt.terminate();
-							}
-							this.solverWorkerAlt = new Worker("js/SolverWorker.js", { type: "module"});
-							this.solverWorkerAlt.postMessage(url);	
-						}
-					}
-					
-					if (!!this.solverWorker) {
-						this.solverWorker.onmessage = function(message) {
-							var result = message.data;
-							var solverUrl = result[0];
-							var solution = result[1];
 
-							if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
-								this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
-							}
-							
-							else {
-								bd.isRunning = false;
-								if (updateCells) {
-									bd.updateSolverAnswerForCells(solution);
-								}
+				if (!!this.solverWorker) {
+					this.solverWorker.onmessage = function(message) {
+						var result = message.data;
+						var solverUrl = result[0];
+						var solution = result[1];
 
-								bd.updateSolverAnswerForBorders(solution);
-								bd.updateSolverAnswerForCrosses(solution);
-
-								bd.isAlt = bd.isAlt ? !bd.isAlt: bd.isAlt;
-								ui.setdisplay();
-								bd.puzzle.painter.paintAll();
+						if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
+							this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
+						} else {
+							bd.isRunning = false;
+							if (updateCells) {
+								bd.updateSolverAnswerForCells(solution);
 							}
 
+							bd.updateSolverAnswerForBorders(solution);
+							bd.updateSolverAnswerForCrosses(solution);
+
+							bd.isAlt = bd.isAlt ? !bd.isAlt : bd.isAlt;
+							ui.setdisplay();
+							bd.puzzle.painter.paintAll();
 						}
-					}
+					};
+				}
 
 				if (!!this.solverWorkerAlt) {
 					this.solverWorkerAlt.onmessage = function(message) {
@@ -227,10 +228,7 @@ pzpr.classmgr.makeCommon({
 
 						if (ui.puzzle.getURL(pzpr.parser.URL_PZPRV3) !== solverUrl) {
 							this.postMessage(ui.puzzle.getURL(pzpr.parser.URL_PZPRV3));
-						}
-						
-						else {
-							
+						} else {
 							bd.isRunning = false;
 							if (updateCells) {
 								bd.updateSolverAnswerForCells(solution);
@@ -239,16 +237,13 @@ pzpr.classmgr.makeCommon({
 							bd.updateSolverAnswerForBorders(solution);
 							bd.updateSolverAnswerForCrosses(solution);
 
-							bd.isAlt = !bd.isAlt ? !bd.isAlt: bd.isAlt;
+							bd.isAlt = !bd.isAlt ? !bd.isAlt : bd.isAlt;
 							ui.setdisplay();
 							bd.puzzle.painter.paintAll();
 						}
-
-					}
+					};
 				}
-			}
-
-			else {
+			} else {
 				this.isRunning = true;
 				ui.setdisplay();
 				var result = window.solveProblemAlt(url);
@@ -264,19 +259,24 @@ pzpr.classmgr.makeCommon({
 			}
 		},
 
-
 		clearSolverAnswerForCells: function() {
 			for (var a = !1, b = 0; b < this.cell.length; ++b) {
 				var c = this.cell[b];
-				0 === c.qansBySolver && 0 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = 0, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
+				(0 === c.qansBySolver &&
+					0 === c.qsubBySolver &&
+					-1 === c.qnumBySolver) ||
+					((c.qansBySolver = 0),
+					(c.qsubBySolver = 0),
+					(c.qnumBySolver = -1),
+					(a = !0)),
+					null !== c.qcandBySolver && ((c.qcandBySolver = null), (a = !0)),
+					c.destBySolver.length !== 0 && ((c.destBySolver = []), (a = !0));
 			}
-			return a
+			return a;
 		},
 
-
 		updateSolverAnswerForCells: function(result) {
-			console.log(result);
-			if (this.clearSolverAnswerForCells(), "string" !== typeof result) {
+			if ((this.clearSolverAnswerForCells(), "string" !== typeof result)) {
 				for (var b = [], c = 0; c < this.rows; ++c) {
 					for (var d = [], e = 0; e < this.cols; ++e) {
 						d.push([]);
@@ -303,95 +303,115 @@ pzpr.classmgr.makeCommon({
 				var solution = result.data;
 				for (var g = 0; g < solution.length; ++g) {
 					var h = solution[g];
-					if (("kakuro" === this.pid || "doppelblock" === this.pid) && ("green" === h.color) && (h.x % 2 === 1) && (h.y % 2 === 1)) {
+					if (
+						("kakuro" === this.pid || "doppelblock" === this.pid) &&
+						"green" === h.color &&
+						h.x % 2 === 1 &&
+						h.y % 2 === 1
+					) {
 						b[(h.y - 3) / 2][(h.x - 3) / 2].push(h.item);
-					}
-					else {
-						("statuepark" === this.pid || "circlesquare" === this.pid || "green" === h.color) && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item))
+					} else {
+						("statuepark" === this.pid ||
+							"circlesquare" === this.pid ||
+							"green" === h.color) &&
+							h.x % 2 === 1 &&
+							h.y % 2 === 1 &&
+							b[(h.y - 1) / 2][(h.x - 1) / 2].push(h.item);
 					}
 				}
 				for (var g = 0; g < this.cell.length; ++g) {
 					var i = this.cell[g];
 
-					for (j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0; k < j.length; ++k) {
-						if ("block" === j[k] || "filledCircle" === j[k] || ("fill" === j[k] && "firewalk" !== this.pid) || ("circle" === j[k] && "doppelblock" !== this.pid && "yinyang" !== this.pid) || "firewalkCellUl" === j[k] || "firewalkCellDr" === j[k] || "firewalkCellUlDr" === j[k]) {
+					for (
+						j = b[(i.by - 1) / 2][(i.bx - 1) / 2], k = 0;
+						k < j.length;
+						++k
+					) {
+						if (
+							"block" === j[k] ||
+							"filledCircle" === j[k] ||
+							("fill" === j[k] && "firewalk" !== this.pid) ||
+							("circle" === j[k] &&
+								"doppelblock" !== this.pid &&
+								"yinyang" !== this.pid) ||
+							"firewalkCellUl" === j[k] ||
+							"firewalkCellDr" === j[k] ||
+							"firewalkCellUlDr" === j[k]
+						) {
 							i.qansBySolver = 1;
-						}
-						else if ("triangle" === j[k] || "firewalkCellUr" === j[k] || "firewalkCellDl" === j[k] || "firewalkCellUrDl" === j[k]) {
+						} else if (
+							"triangle" === j[k] ||
+							"firewalkCellUr" === j[k] ||
+							"firewalkCellDl" === j[k] ||
+							"firewalkCellUrDl" === j[k]
+						) {
 							i.qansBySolver = 2;
-						}
-						else if ("square" === j[k] || "firewalkCellUnknown" === j[k]) {
+						} else if ("square" === j[k] || "firewalkCellUnknown" === j[k]) {
 							i.qansBySolver = 3;
-						}
-						else if ("dot" === j[k] || ("circle" === j[k] && ("doppelblock" === this.pid || "yinyang" === this.pid)) ) {
+						} else if (
+							"dot" === j[k] ||
+							("circle" === j[k] &&
+								("doppelblock" === this.pid || "yinyang" === this.pid))
+						) {
 							i.qsubBySolver = 1;
-						}
-						else if ("aboloUpperLeft" === j[k]) {
+						} else if ("aboloUpperLeft" === j[k]) {
 							i.qansBySolver = 5;
-						}
-						else if ("aboloUpperRight" === j[k]) {
+						} else if ("aboloUpperRight" === j[k]) {
 							i.qansBySolver = 4;
-						}
-						else if ("aboloLowerLeft" === j[k]) {
+						} else if ("aboloLowerLeft" === j[k]) {
 							i.qansBySolver = 2;
-						}
-						else if ("aboloLowerRight" === j[k]) {
+						} else if ("aboloLowerRight" === j[k]) {
 							i.qansBySolver = 3;
-						}
-						else if ("pencilUp" === j[k]) {
+						} else if ("pencilUp" === j[k]) {
 							i.qansBySolver = 6;
-						}
-						else if ("pencilLeft" === j[k]) {
+						} else if ("pencilLeft" === j[k]) {
 							i.qansBySolver = 7;
-						}
-						else if ("pencilDown" === j[k]) {
+						} else if ("pencilDown" === j[k]) {
 							i.qansBySolver = 8;
-						}
-						else if ("pencilRight" === j[k]) {
+						} else if ("pencilRight" === j[k]) {
 							i.qansBySolver = 9;
-						}
-						else if ("slash" === j[k]) {
+						} else if ("slash" === j[k]) {
 							i.qansBySolver = 32;
-						}
-						else if ("backslash" === j[k]) {
+						} else if ("backslash" === j[k]) {
 							i.qansBySolver = 31;
-						}
-						else if (j[k].kind) {
+						} else if (j[k].kind) {
 							if ("text" === j[k].kind) {
 								if ("bosanowa" === this.pid) {
-									bd.getc(i.bx - 1 + x1,i.by - 1 + y1).qnumBySolver = parseInt(j[k].data);
-								}
-								else {
+									bd.getc(i.bx - 1 + x1, i.by - 1 + y1).qnumBySolver = parseInt(
+										j[k].data
+									);
+								} else {
 									i.qnumBySolver = parseInt(j[k].data);
 								}
-							}
-							else if ("sudokuCandidateSet" === j[k].kind) {
+							} else if ("sudokuCandidateSet" === j[k].kind) {
 								i.qcandBySolver = [];
 								for (var l = 0; l < this.rows; ++l) {
 									i.qcandBySolver.push(!1);
 								}
 								for (var l = 0; l < j[k].values.length; ++l) {
 									var e = j[k].values[l];
-									1 <= e && e <= this.rows && (i.qcandBySolver[e - 1] = !0)
+									1 <= e && e <= this.rows && (i.qcandBySolver[e - 1] = !0);
 								}
 							}
-						}
-						else {
-							for (var m = "shakashaka" === this.pid ? 2 : 1, g = 0; g < this.cell.length; ++g) {
+						} else {
+							for (
+								var m = "shakashaka" === this.pid ? 2 : 1, g = 0;
+								g < this.cell.length;
+								++g
+							) {
 								var i = this.cell[g],
 									c = (i.by - 1) / 2,
 									e = (i.bx - 1) / 2;
-								c % 2 === e % 2 && (i.qansBySolver = m)
+								c % 2 === e % 2 && (i.qansBySolver = m);
 							}
 						}
 					}
 				}
-			}
-			else {
+			} else {
 				for (var g = 0; g < this.cell.length; ++g) {
-					var i = this.cell[g]
-					i.qansBySolver = (i.bx + i.by) % 4 + 1;
-					i.qsubBySolver = (i.bx + i.by) % 4 + 1;
+					var i = this.cell[g];
+					i.qansBySolver = ((i.bx + i.by) % 4) + 1;
+					i.qsubBySolver = ((i.bx + i.by) % 4) + 1;
 					i.qnumBySolver = 0;
 				}
 			}
@@ -400,103 +420,168 @@ pzpr.classmgr.makeCommon({
 		clearSolverAnswerForBorders: function() {
 			for (var a = !1, b = 0; b < this.border.length; ++b) {
 				var c = this.border[b];
-				0 === c.lineBySolver && 0 === c.qsubBySolver && c.edgeBySolver === 0 || (c.lineBySolver = 0, c.qsubBySolver = 0, c.edgeBySolver = 0, a = !0)
+				(0 === c.lineBySolver &&
+					0 === c.qsubBySolver &&
+					c.edgeBySolver === 0) ||
+					((c.lineBySolver = 0),
+					(c.qsubBySolver = 0),
+					(c.edgeBySolver = 0),
+					(a = !0));
 			}
-			return a
+			return a;
 		},
 
 		updateSolverAnswerForBorders: function(result) {
-			if (this.clearSolverAnswerForBorders(), "string" !== typeof result) {
+			if ((this.clearSolverAnswerForBorders(), "string" !== typeof result)) {
 				for (var b = [], c = 0; c < 2 * this.rows + 1; ++c) {
-					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) 
-						{d.push([]);}
-					b.push(d)
+					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) {
+						d.push([]);
+					}
+					b.push(d);
 				}
 				for (var f = result.data, g = 0; g < f.length; ++g) {
 					var h = f[g];
-					if ("firefly" === this.pid) { "green" === h.color && (h.x+1 % 2 !== h.y+1 % 2 && b[h.y+1][h.x+1].push(h.item)) }
-					else { "green" === h.color && (h.x % 2 !== h.y % 2 && b[h.y][h.x].push(h.item)) }
-					
+					if ("firefly" === this.pid) {
+						"green" === h.color &&
+							h.x + (1 % 2) !== h.y + (1 % 2) &&
+							b[h.y + 1][h.x + 1].push(h.item);
+					} else {
+						"green" === h.color &&
+							h.x % 2 !== h.y % 2 &&
+							b[h.y][h.x].push(h.item);
+					}
 				}
 				for (var g = 0; g < this.border.length; ++g) {
-					for (var i = this.border[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k) {
-						if ("line" === j[k] || "wall" === j[k]) { i.lineBySolver = 1; }
-						else if ("doubleLine" === j[k]) { i.lineBySolver = 2; }
-						else if ("boldWall" === j[k]) {
-							"firefly" === this.pid ? i.lineBySolver = 1 : i.edgeBySolver = 1;
+					for (
+						var i = this.border[g], j = b[i.by][i.bx], k = 0;
+						k < j.length;
+						++k
+					) {
+						if ("line" === j[k] || "wall" === j[k]) {
+							i.lineBySolver = 1;
+						} else if ("doubleLine" === j[k]) {
+							i.lineBySolver = 2;
+						} else if ("boldWall" === j[k]) {
+							"firefly" === this.pid
+								? (i.lineBySolver = 1)
+								: (i.edgeBySolver = 1);
+						} else if ("cross" === j[k]) {
+							i.qsubBySolver = 2;
 						}
-						else if ("cross" === j[k]) { i.qsubBySolver = 2; }
 					}
 				}
 			} else {
 				for (var g = 0; g < this.border.length; ++g) {
 					var i = this.border[g];
-					i.qsubBySolver = 2
+					i.qsubBySolver = 2;
 				}
 			}
 		},
 
-		clearSolverAnswerForCrosses: function () {
+		clearSolverAnswerForCrosses: function() {
 			for (var a = !1, b = 0; b < this.cross.length; ++b) {
 				var c = this.cross[b];
-				0 === c.qansBySolver && -1 === c.qsubBySolver && -1 === c.qnumBySolver || (c.qansBySolver = 0, c.qsubBySolver = -1, c.qnumBySolver = -1, a = !0), null !== c.qcandBySolver && (c.qcandBySolver = null, a = !0), c.destBySolver.length !== 0 && (c.destBySolver = [], a = !0)
+				(0 === c.qansBySolver &&
+					-1 === c.qsubBySolver &&
+					-1 === c.qnumBySolver) ||
+					((c.qansBySolver = 0),
+					(c.qsubBySolver = -1),
+					(c.qnumBySolver = -1),
+					(a = !0)),
+					null !== c.qcandBySolver && ((c.qcandBySolver = null), (a = !0)),
+					c.destBySolver.length !== 0 && ((c.destBySolver = []), (a = !0));
 			}
-			return a
+			return a;
 		},
-		updateSolverAnswerForCrosses: function (result) {
-			if (this.clearSolverAnswerForCrosses(), "string" !== typeof result) {
+		updateSolverAnswerForCrosses: function(result) {
+			if ((this.clearSolverAnswerForCrosses(), "string" !== typeof result)) {
 				for (var b = [], c = 0; c < 2 * this.rows + 1; ++c) {
-					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) { d.push([]); }
-					b.push(d)
+					for (var d = [], e = 0; e < 2 * this.cols + 1; ++e) {
+						d.push([]);
+					}
+					b.push(d);
 				}
 				for (var f = result.data, g = 0; g < f.length; ++g) {
 					var h = f[g];
-					if ("kouchoku" === this.pid) { "green" === h.color && (h.x % 2 === 1 && h.y % 2 === 1 && b[(h.y-1)][(h.x-1)].push(h.item)) }
+					if ("kouchoku" === this.pid) {
+						"green" === h.color &&
+							h.x % 2 === 1 &&
+							h.y % 2 === 1 &&
+							b[h.y - 1][h.x - 1].push(h.item);
+					}
 				}
-			
-			for (var g = 0; g < this.cross.length; ++g) {
-				for (var i = this.cross[g], j = b[i.by][i.bx], k = 0; k < j.length; ++k) {
-					i.qansBySolver = 1;
-					if (j[k].kind) {
-						if ("lineTo" === j[k].kind) {
-							i.qansBySolver = 1;
-							for (var p = 0; p < this.cross.length; p++) {
-								if (j[k].destX - 1 === this.cross[p].bx && j[k].destY - 1 === this.cross[p].by) { this.cross[p].destBySolver.push(i.id); break;  }
+
+				for (var g = 0; g < this.cross.length; ++g) {
+					for (
+						var i = this.cross[g], j = b[i.by][i.bx], k = 0;
+						k < j.length;
+						++k
+					) {
+						i.qansBySolver = 1;
+						if (j[k].kind) {
+							if ("lineTo" === j[k].kind) {
+								i.qansBySolver = 1;
+								for (var p = 0; p < this.cross.length; p++) {
+									if (
+										j[k].destX - 1 === this.cross[p].bx &&
+										j[k].destY - 1 === this.cross[p].by
+									) {
+										this.cross[p].destBySolver.push(i.id);
+										break;
+									}
+								}
 							}
 						}
 					}
 				}
-			}
-
-		}
-				else {
-					for (var g = 0; g < this.cross.length; ++g) {
-						var i = this.cross[g]
-						i.qansBySolver = 1;
-						i.destBySolver.push(this.cross[0].id);
-					}
+			} else {
+				for (var g = 0; g < this.cross.length; ++g) {
+					var i = this.cross[g];
+					i.qansBySolver = 1;
+					i.destBySolver.push(this.cross[0].id);
 				}
+			}
 		},
 		showAnswer: function() {
 			if (this.answers) {
-				var a, b, c = this.answerIndex;
-				"string" === typeof this.answers ? (a = this.answers, b = 0) : (a = this.answers.answers[c], b = this.answers.answers.length);
-				var d = ui.popupmgr.popups.auxeditor.pop.querySelector(".solver-answer-locator");
-				"terminated" === this.answers ? d.innerText = "Terminated" : d.innerText = c + 1 + "/" + b;
-				"numlin-aux" === this.pid && this.updateSolverAnswerForBorders(a), this.puzzle.painter.paintAll()
+				var a,
+					b,
+					c = this.answerIndex;
+				"string" === typeof this.answers
+					? ((a = this.answers), (b = 0))
+					: ((a = this.answers.answers[c]), (b = this.answers.answers.length));
+				var d = ui.popupmgr.popups.auxeditor.pop.querySelector(
+					".solver-answer-locator"
+				);
+				"terminated" === this.answers
+					? (d.innerText = "Terminated")
+					: (d.innerText = c + 1 + "/" + b);
+				"numlin-aux" === this.pid && this.updateSolverAnswerForBorders(a),
+					this.puzzle.painter.paintAll();
 			}
 		},
 
 		locateAnswer: function(a) {
 			if (null !== this.answers) {
 				var b;
-				b = "string" === typeof this.answers ? 0 : this.answers.answers.length, -2 === a ? this.answerIndex = 0 : -1 === a ? (this.answerIndex -= 1, this.answerIndex < 0 && (this.answerIndex = 0)) : 1 === a ? (this.answerIndex += 1, this.answerIndex >= b && (this.answerIndex = b - 1)) : this.answerIndex = b - 1, this.showAnswer()
+				(b =
+					"string" === typeof this.answers ? 0 : this.answers.answers.length),
+					-2 === a
+						? (this.answerIndex = 0)
+						: -1 === a
+						? ((this.answerIndex -= 1),
+						  this.answerIndex < 0 && (this.answerIndex = 0))
+						: 1 === a
+						? ((this.answerIndex += 1),
+						  this.answerIndex >= b && (this.answerIndex = b - 1))
+						: (this.answerIndex = b - 1),
+					this.showAnswer();
 			}
 		},
 		is_autosolve: !1,
 
 		updateIsAutosolve: function(a) {
-			this.is_autosolve !== a && (this.is_autosolve = a, this.autoSolve())
+			this.is_autosolve !== a && ((this.is_autosolve = a), this.autoSolve());
 		},
 
 		//---------------------------------------------------------------------------

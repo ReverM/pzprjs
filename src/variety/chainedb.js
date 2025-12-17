@@ -139,7 +139,9 @@
 			} else if (info === -1) {
 				return this.noerrcolor;
 			}
-			return cell.qnum !== -1 ? this.shadecolor : this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
+			return cell.qnum !== -1
+				? this.shadecolor
+				: this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
 		}
 	},
 	"Graphic@mrtile,archipelago": {

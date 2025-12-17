@@ -173,7 +173,9 @@
 			} else if (cell.trial) {
 				return this.trialcolor;
 			}
-			return cell.qnum !== -1 ? this.shadecolor : this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
+			return cell.qnum !== -1
+				? this.shadecolor
+				: this.getColorSolverAware(cell.isShade(), 1 === cell.qansBySolver);
 		},
 		getQuesNumberColor: function(cell) {
 			return cell.qcmp === 1 ? this.qcmpcolor : this.fontShadecolor;

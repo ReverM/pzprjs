@@ -1,13 +1,12 @@
 var Solver = null;
 
-const moduleLoaded = new Promise((resolve) => {
-    const resolveRef = resolve;
-    Module().then(function (mod) {
-        Solver = mod;
-        resolveRef();
-    });
+const moduleLoaded = new Promise(resolve => {
+	const resolveRef = resolve;
+	Module().then(function(mod) {
+		Solver = mod;
+		resolveRef();
+	});
 });
-
 
 export async function solveProblem(url) {
 	if (Solver === null) {
@@ -20,8 +19,14 @@ export async function solveProblem(url) {
 	var ans = Solver._solve_problem(buf, urlEncoded.length);
 	Solver._free(buf);
 
-	var length = Solver.HEAPU8[ans] | (Solver.HEAPU8[ans + 1] << 8) | (Solver.HEAPU8[ans + 2] << 16) | (Solver.HEAPU8[ans + 3] << 24);
-	var resultStr = new TextDecoder().decode(Solver.HEAPU8.slice(ans + 4, ans + 4 + length));
+	var length =
+		Solver.HEAPU8[ans] |
+		(Solver.HEAPU8[ans + 1] << 8) |
+		(Solver.HEAPU8[ans + 2] << 16) |
+		(Solver.HEAPU8[ans + 3] << 24);
+	var resultStr = new TextDecoder().decode(
+		Solver.HEAPU8.slice(ans + 4, ans + 4 + length)
+	);
 	var result = JSON.parse(resultStr.substring(0, resultStr.length));
 	return result["description"];
 }

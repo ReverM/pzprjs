@@ -231,7 +231,7 @@
 	Graphic: {
 		enablebcolor: true,
 
-		paint: function () {
+		paint: function() {
 			this.drawBGCells();
 			this.drawTargetSubNumber();
 			this.drawGrid();
@@ -247,14 +247,14 @@
 			this.drawCursor();
 		},
 
-		getNumberTextCore: function (num) {
+		getNumberTextCore: function(num) {
 			if (num > 0) {
 				return "○△◻"[num - 1];
 			}
 			return null;
 		},
 
-		drawQnumMarks: function () {
+		drawQnumMarks: function() {
 			var g = this.vinc("cell_mark", "auto");
 
 			g.lineWidth = Math.max(this.cw / 18, 2);
@@ -268,7 +268,14 @@
 				g.strokeStyle =
 					cell.qnum !== -1
 						? this.getQuesNumberColor(cell)
-						: ((1 === this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [1, 2, 3])) ? this.solverqanscolor : this.getAnsNumberColor(cell))
+						: 1 ===
+						  this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [
+								1,
+								2,
+								3
+						  ])
+						? this.solverqanscolor
+						: this.getAnsNumberColor(cell);
 				var px = cell.bx * this.bw,
 					py = cell.by * this.bh;
 				switch (cell.getNum()) {
@@ -299,7 +306,15 @@
 				}
 
 				g.vid = "c_mk_solver" + cell.id;
-				g.strokeStyle = (1 === this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [1, 2, 3])) ? this.solverqanscolor : this.solvercolor;
+				g.strokeStyle =
+					1 ===
+					this.isSameSymbol(cell.getNum(), [1, 2, 3], cell.qansBySolver, [
+						1,
+						2,
+						3
+					])
+						? this.solverqanscolor
+						: this.solvercolor;
 				switch (cell.qansBySolver) {
 					case 1:
 						g.strokeCircle(px, py, rsize);

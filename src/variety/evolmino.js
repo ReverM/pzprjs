@@ -510,7 +510,11 @@
 							: cell.qnum === 1
 							? this.sq_qcolor
 							: !cell.trial
-							? this.getColorSolverAware(cell.anum === 1, cell.qansBySolver === 3 , this.sq_anscolor)    
+							? this.getColorSolverAware(
+									cell.anum === 1,
+									cell.qansBySolver === 3,
+									this.sq_anscolor
+							  )
 							: this.sq_trialcolor;
 					g.strokeRectCenter(cell.bx * this.bw, cell.by * this.bh, rw, rh);
 				} else {
@@ -528,7 +532,13 @@
 				var cell = clist[i];
 				g.vid = "c_dot_" + cell.id;
 				if (cell.isDot() || cell.isDotBySolver()) {
-					g.fillStyle = !cell.trial ? this.getColorSolverAware(cell.isDot(), cell.isDotBySolver(), this.dot_anscolor ) : this.dot_trialcolor;
+					g.fillStyle = !cell.trial
+						? this.getColorSolverAware(
+								cell.isDot(),
+								cell.isDotBySolver(),
+								this.dot_anscolor
+						  )
+						: this.dot_trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 				} else {
 					g.vhide();

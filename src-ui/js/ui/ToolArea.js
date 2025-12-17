@@ -219,7 +219,9 @@ ui.toolarea = {
 		var net = ui.network.mode !== "";
 
 		var isRunning = ui.puzzle.board.isRunning;
-		getEL("solver.status").textContent = isRunning ? ui.i18n("solver.status.running") : ui.i18n("solver.status.running");
+		getEL("solver.status").textContent = isRunning
+			? ui.i18n("solver.status.running")
+			: ui.i18n("solver.status.running");
 		getEL("solver.status").style.visibility = isRunning ? "visible" : "hidden";
 
 		if (idname === "operation") {
@@ -347,10 +349,10 @@ ui.toolarea = {
 		ui.puzzle.irowake();
 	},
 	run_autosolver: function() {
-		ui.puzzle.board.autoSolve(true)
+		ui.puzzle.board.autoSolve(true);
 	},
 	open_solver: function() {
-		ui.puzzle.board.openSolver()
+		ui.puzzle.board.openSolver();
 	},
 	encolorall: function() {
 		ui.puzzle.board.encolorall();

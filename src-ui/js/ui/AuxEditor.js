@@ -67,19 +67,20 @@ ui.popupmgr.addpopup("auxeditor", {
 	},
 
 	solver_answer_first: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(-2)
+		ui.auxeditor.puzzle.board.locateAnswer(-2);
 	},
 	solver_answer_prev: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(-1)
+		ui.auxeditor.puzzle.board.locateAnswer(-1);
 	},
 	solver_answer_next: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(1)
+		ui.auxeditor.puzzle.board.locateAnswer(1);
 	},
 	solver_answer_last: function() {
-		ui.auxeditor.puzzle.board.locateAnswer(2)
+		ui.auxeditor.puzzle.board.locateAnswer(2);
 	},
 	solver_stop: function() {
-		ui.auxeditor.puzzle.board.solverRunning && window.solveNumberlinkAsyncTerminate()
+		ui.auxeditor.puzzle.board.solverRunning &&
+			window.solveNumberlinkAsyncTerminate();
 	}
 });
 

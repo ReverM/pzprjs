@@ -184,7 +184,6 @@ pzpr.classmgr.makeCommon({
 				if (this.prehook[prop].call(this, num) && !force) {
 					return;
 				}
-				
 			}
 
 			this.addOpe(prop, this[prop], num);
@@ -194,7 +193,7 @@ pzpr.classmgr.makeCommon({
 			if (trialstage > 0) {
 				this.trial = trialstage;
 			}
-			
+
 			if (this.puzzle.editmode) {
 				this.board.autoSolve();
 			}

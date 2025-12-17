@@ -39,14 +39,20 @@ pzpr.classmgr.makeCommon({
 		},
 
 		getColorSolverAware: function(a, b, c) {
-            return a && b ? this.solverqanscolor : b ? this.solvercolor : c || this.qanscolor
+			return a && b
+				? this.solverqanscolor
+				: b
+				? this.solvercolor
+				: c || this.qanscolor;
 		},
 
-		isSameSymbol: function (answerKey, answerDict, solverKey, solverDict) {
+		isSameSymbol: function(answerKey, answerDict, solverKey, solverDict) {
 			var l = answerDict.length;
 			var overlap = 0;
 			for (var i = 0; i < l; i++) {
-				if (answerKey === answerDict[i] && solverKey === solverDict[i]) { overlap = 1; }
+				if (answerKey === answerDict[i] && solverKey === solverDict[i]) {
+					overlap = 1;
+				}
 			}
 			return overlap;
 		},
@@ -60,7 +66,7 @@ pzpr.classmgr.makeCommon({
 			this.drawCells_common("c_fulls_", this.getShadedCellColor);
 		},
 		getShadedCellColor: function(cell) {
-			if (cell.qans !== 1 && cell.qansBySolver !==1) {
+			if (cell.qans !== 1 && cell.qansBySolver !== 1) {
 				return null;
 			}
 			var hasinfo = this.board.haserror || this.board.hasinfo;
@@ -74,7 +80,11 @@ pzpr.classmgr.makeCommon({
 			} else if (this.puzzle.execConfig("irowakeblk") && !hasinfo) {
 				return cell.sblk.color;
 			}
-			return this.getColorSolverAware(1 === cell.qans, 1 === cell.qansBySolver, this.shadecolor);
+			return this.getColorSolverAware(
+				1 === cell.qans,
+				1 === cell.qansBySolver,
+				this.shadecolor
+			);
 		},
 
 		//---------------------------------------------------------------------------
@@ -131,7 +141,7 @@ pzpr.classmgr.makeCommon({
 			}
 			return null;
 		},
-		getBGCellColor_qsub1: function (cell) {
+		getBGCellColor_qsub1: function(cell) {
 			if ((cell.error || cell.qinfo) === 1) {
 				return this.errbcolor1;
 			} else if (cell.qsub === 1 /*|| cell.qsubBySolver === 1*/) {
@@ -249,7 +259,9 @@ pzpr.classmgr.makeCommon({
 
 				g.vid = "c_dot_" + cell.id;
 				if (cell.isDot()) {
-					g.fillStyle = !cell.trial ? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver) : this.trialcolor;
+					g.fillStyle = !cell.trial
+						? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver)
+						: this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 				} else {
 					g.vhide();
@@ -258,7 +270,7 @@ pzpr.classmgr.makeCommon({
 			this.drawDotForSolverCells();
 		},
 
-		drawDotForSolverCells: function () {
+		drawDotForSolverCells: function() {
 			var g = this.vinc("cell_dot_for_solver", "auto", true);
 
 			var dsize = Math.max(this.cw * 0.06, 2);
@@ -268,7 +280,9 @@ pzpr.classmgr.makeCommon({
 
 				g.vid = "c_dot_for_solver" + cell.id;
 				if (cell.isDotBySolver()) {
-					g.fillStyle = !cell.trial ? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver) : this.trialcolor;
+					g.fillStyle = !cell.trial
+						? this.getColorSolverAware(1 === cell.qsub, 1 === cell.qsubBySolver)
+						: this.trialcolor;
 					g.fillCircle(cell.bx * this.bw, cell.by * this.bh, dsize);
 				} else {
 					g.vhide();
@@ -495,7 +509,15 @@ pzpr.classmgr.makeCommon({
 						} else if (cell.trial) {
 							color = this.linetrialcolor;
 						} else {
-							color = (1 === this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [31, 32, 33])) ? this.solverqanscolor : this.linecolor;
+							color =
+								1 ===
+								this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [
+									31,
+									32,
+									33
+								])
+									? this.solverqanscolor
+									: this.linecolor;
 						}
 
 						g.lineWidth = basewidth + addwidth;
@@ -533,7 +555,7 @@ pzpr.classmgr.makeCommon({
 			this.drawSlashesForSolver();
 		},
 
-		drawSlashesForSolver: function () {
+		drawSlashesForSolver: function() {
 			var g = this.vinc("cell_slash_for_solver", "auto");
 
 			var basewidth = Math.max(this.bw / 4, 2);
@@ -587,7 +609,15 @@ pzpr.classmgr.makeCommon({
 						} else if (cell.trial) {
 							color = this.linetrialcolor;
 						} else {
-							color = (1 === this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [31, 32, 33])) ? this.solverqanscolor : this.solvercolor;
+							color =
+								1 ===
+								this.isSameSymbol(cell.qans, [31, 32, 33], cell.qansBySolver, [
+									31,
+									32,
+									33
+								])
+									? this.solverqanscolor
+									: this.solvercolor;
 						}
 
 						g.lineWidth = basewidth + addwidth;
@@ -652,14 +682,14 @@ pzpr.classmgr.makeCommon({
 			this.drawCandidateNumbers();
 		},
 		drawSolverAnsNumbers: function() {
-            this.vinc("cell_solver_ans_number", "auto");
+			this.vinc("cell_solver_ans_number", "auto");
 			this.drawNumbers_com(
-				this.getSolverAnsNumberText, 
-				this.getSolverAnsNumberColor, 
+				this.getSolverAnsNumberText,
+				this.getSolverAnsNumberColor,
 				"cell_solver_ans_text_",
-				 {}
+				{}
 			);
-        },
+		},
 		drawHatenas: function() {
 			function getQuesHatenaText(cell) {
 				return cell.ques === -2 || cell.qnum === -2 ? "?" : "";
@@ -704,9 +734,11 @@ pzpr.classmgr.makeCommon({
 			return this.getNumberText(cell, cell.anum);
 		},
 		getSolverAnsNumberText: function(cell) {
-			if (cell.qnumBySolver === -1) {return ""}
-            return this.getNumberText(cell, cell.qnumBySolver);
-        },
+			if (cell.qnumBySolver === -1) {
+				return "";
+			}
+			return this.getNumberText(cell, cell.qnumBySolver);
+		},
 
 		getNumberText: function(cell, num) {
 			if (!cell.numberAsLetter) {
@@ -776,8 +808,8 @@ pzpr.classmgr.makeCommon({
 		},
 
 		getSolverAnsNumberColor: function(cell) {
-            return this.solvercolor
-        },
+			return this.solvercolor;
+		},
 
 		//---------------------------------------------------------------------------
 		// pc.drawNumbersExCell()  ExCellの数字をCanvasに書き込む
@@ -836,15 +868,28 @@ pzpr.classmgr.makeCommon({
 		},
 
 		drawCandidateNumbers: function(a) {
-			for (var b = this.vinc("cell_candnumber", "auto"), c = Math.round(Math.sqrt(a)), d = this.range.cells, e = 0; e < d.length; e++){
+			for (
+				var b = this.vinc("cell_candnumber", "auto"),
+					c = Math.round(Math.sqrt(a)),
+					d = this.range.cells,
+					e = 0;
+				e < d.length;
+				e++
+			) {
 				for (var f = d[e], g = f.qcandBySolver, h = 0; h < a; ++h) {
-			b.vid = "cell_candtext_" + f.id + "_" + h;
-			g && g[h] ? (b.fillStyle = this.solvercolor, this.disptext(h + 1 + "", 
-			(f.bx + (h % c + .5) / c * 2 - 1) * this.bw, (f.by + (Math.floor(h / c) + .5)
-			/ c * 2 - 1) * this.bh, {ratio: 1 / c * .9, hoffset: 0
-				})) : b.vhide()
-		}}},
-		
+					b.vid = "cell_candtext_" + f.id + "_" + h;
+					g && g[h]
+						? ((b.fillStyle = this.solvercolor),
+						  this.disptext(
+								h + 1 + "",
+								(f.bx + (((h % c) + 0.5) / c) * 2 - 1) * this.bw,
+								(f.by + ((Math.floor(h / c) + 0.5) / c) * 2 - 1) * this.bh,
+								{ ratio: (1 / c) * 0.9, hoffset: 0 }
+						  ))
+						: b.vhide();
+				}
+			}
+		},
 
 		//---------------------------------------------------------------------------
 		// pc.drawArrowNumbers() Cellの数字と矢印をCanvasに書き込む
@@ -1206,7 +1251,10 @@ pzpr.classmgr.makeCommon({
 				} else if (border.trial) {
 					return this.linetrialcolor;
 				} else {
-					return this.getColorSolverAware(border.isBorder(), 1 === border.edgeBySolver);
+					return this.getColorSolverAware(
+						border.isBorder(),
+						1 === border.edgeBySolver
+					);
 				}
 			} else if (!!border.isCmp && border.isCmp()) {
 				return this.qcmpcolor;
@@ -1272,7 +1320,13 @@ pzpr.classmgr.makeCommon({
 				if (border.qsub === 1 || border.qsubBySolver === 2) {
 					var px = border.bx * this.bw + this.getBorderHorizontalOffset(border),
 						py = border.by * this.bh;
-					g.fillStyle = !border.trial ? this.getColorSolverAware(1 === border.qsub, 2 === border.qsubBySolver, this.pekecolor) : this.linetrialcolor;
+					g.fillStyle = !border.trial
+						? this.getColorSolverAware(
+								1 === border.qsub,
+								2 === border.qsubBySolver,
+								this.pekecolor
+						  )
+						: this.linetrialcolor;
 					if (border.isHorz()) {
 						g.fillRectCenter(px, py, 0.5, this.bh - m);
 					} else {
@@ -1460,7 +1514,12 @@ pzpr.classmgr.makeCommon({
 				} else if (isIrowake) {
 					return border.path.color;
 				} else {
-					return border.trial ? this.linetrialcolor : this.getColorSolverAware(1 === border.line, 1 === border.lineBySolver);
+					return border.trial
+						? this.linetrialcolor
+						: this.getColorSolverAware(
+								1 === border.line,
+								1 === border.lineBySolver
+						  );
 				}
 			}
 			return null;
@@ -1584,7 +1643,12 @@ pzpr.classmgr.makeCommon({
 				var border = blist[i];
 				g.vid = "b_peke_" + border.id;
 				if (border.qsub === 2 || border.qsubBySolver === 2) {
-					g.strokeStyle = !border.trial ? this.getColorSolverAware(2 === border.qsub, 2 === border.qsubBySolver) : this.trialcolor;
+					g.strokeStyle = !border.trial
+						? this.getColorSolverAware(
+								2 === border.qsub,
+								2 === border.qsubBySolver
+						  )
+						: this.trialcolor;
 					g.strokeCross(border.bx * this.bw, border.by * this.bh, size - 1);
 				} else {
 					g.vhide();
@@ -1624,22 +1688,19 @@ pzpr.classmgr.makeCommon({
 			for (var i = 0; i < clist.length; i++) {
 				var cell = clist[i],
 					num = cell.ques !== 0 ? cell.ques : cell.qans;
-					snum = cell.qansBySolver;
+				snum = cell.qansBySolver;
 				g.vid = "c_tri_" + cell.id;
 				if (num >= 2 && num <= 5) {
 					g.fillStyle = this.getTriangleColor(cell);
 					this.drawTriangle1(cell.bx * this.bw, cell.by * this.bh, num);
-				}
-				else {
+				} else {
 					g.vhide();
 				}
 				g.vid = "c_tri_solver_" + cell.id;
 				if (snum >= 2 && snum <= 5) {
-
 					g.fillStyle = this.solvercolor;
 					this.drawTriangle1(cell.bx * this.bw, cell.by * this.bh, snum);
-				}
-				else {
+				} else {
 					g.vhide();
 				}
 			}

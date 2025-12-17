@@ -280,7 +280,11 @@
 			var blist = this.range.borders;
 			for (var i = 0; i < blist.length; i++) {
 				var border = blist[i],
-					color = this.getColorSolverAware(border.isLine(), border.isLineBySolver(), this.getLineColor(border));
+					color = this.getColorSolverAware(
+						border.isLine(),
+						border.isLineBySolver(),
+						this.getLineColor(border)
+					);
 				var isvert = border.isVert();
 				var px = border.bx * this.bw,
 					py = border.by * this.bh;

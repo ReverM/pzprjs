@@ -575,7 +575,11 @@
 				} else if (cell.trial) {
 					return this.trialcolor;
 				}
-				return this.getColorSolverAware(cell.qans === 1, cell.qansBySolver === 1, this.shadecolor);
+				return this.getColorSolverAware(
+					cell.qans === 1,
+					cell.qansBySolver === 1,
+					this.shadecolor
+				);
 			} else if (info === 1) {
 				return this.errbcolor1;
 			}
