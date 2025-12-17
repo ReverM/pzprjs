@@ -238,8 +238,10 @@ ui.keypopup = {
 		numcity: [10, 10],
 		cityspace: [10, 0],
 		diamond: [4, 0],
+		sendai: [10, 0],
 		morningwalk: [10, 0],
-		energywalk: [10, 0]
+		energywalk: [10, 0],
+		keywest: [4, 4]
 	},
 
 	//---------------------------------------------------------------------------
