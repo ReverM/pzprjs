@@ -126,6 +126,9 @@ pzpr.classmgr.makeCommon({
 				if (updateBorders && this.clearSolverAnswerForBorders()) {
 					needUpdateField = true;
 				}
+				if (this.clearSolverAnswerForCrosses()) {
+					needUpdateField = true;
+				}
 				if (needUpdateField) {
 					this.puzzle.painter.paintAll();
 				}
@@ -269,8 +272,7 @@ pzpr.classmgr.makeCommon({
 					(c.qsubBySolver = 0),
 					(c.qnumBySolver = -1),
 					(a = !0)),
-					null !== c.qcandBySolver && ((c.qcandBySolver = null), (a = !0)),
-					c.destBySolver.length !== 0 && ((c.destBySolver = []), (a = !0));
+					null !== c.qcandBySolver && ((c.qcandBySolver = null), (a = !0));
 			}
 			return a;
 		},
@@ -304,7 +306,9 @@ pzpr.classmgr.makeCommon({
 				for (var g = 0; g < solution.length; ++g) {
 					var h = solution[g];
 					if (
-						("kakuro" === this.pid || "doppelblock" === this.pid || "aquarium" === this.pid ) &&
+						("kakuro" === this.pid ||
+							"doppelblock" === this.pid ||
+							"aquarium" === this.pid) &&
 						"green" === h.color &&
 						h.x % 2 === 1 &&
 						h.y % 2 === 1
