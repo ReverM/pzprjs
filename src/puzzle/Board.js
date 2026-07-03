@@ -480,7 +480,9 @@ pzpr.classmgr.makeCommon({
 						++k
 					) {
 						if ("line" === j[k] || "wall" === j[k]) {
-							i.lineBySolver = 1;
+							"longest" !== this.pid
+								? (i.lineBySolver = 1)
+								: (i.edgeBySolver = 1);
 						} else if ("doubleLine" === j[k]) {
 							i.lineBySolver = 2;
 						} else if ("boldWall" === j[k]) {
