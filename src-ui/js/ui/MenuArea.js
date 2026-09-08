@@ -265,8 +265,9 @@ ui.menuarea = {
 				/* Check部の表記の変更 */
 				var cname = ui.menuconfig.get(idname) ? "checked" : "check";
 				var disabled = null;
+
 				if (ui.puzzle.config.getvariant(idname)) {
-					disabled = !ui.puzzle.editmode;
+					disabled = !ui.puzzle.editmode || menuitem.el.id === "variant" ;
 				}
 				if (disabled === true) {
 					cname += " disabled";

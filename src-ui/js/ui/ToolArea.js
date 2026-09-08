@@ -290,7 +290,7 @@ ui.toolarea = {
 					disabled = ui.puzzle.editmode && ui.puzzle.pid === "magnets";
 				}
 				if (ui.puzzle.config.getvariant(idname)) {
-					disabled = !ui.puzzle.editmode;
+					disabled = !ui.puzzle.editmode || toolitem.el.id === "variant";
 				}
 				if (disabled !== null) {
 					toolitem.checkbox.disabled = !disabled ? "" : "true";
